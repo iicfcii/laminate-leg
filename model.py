@@ -45,7 +45,6 @@ class Model:
         self.body.SetRot(chrono.Q_from_AngZ(Leg.link_rotz(leg.link_pts(0))))
         self.body.GetCollisionModel().SetFamily(1)
         self.body.GetCollisionModel().SetFamilyMaskNoCollisionWithFamily(1)
-        if body_constraint=='xyz': self.body.SetBodyFixed(True)
         self.system.Add(self.body)
 
         link1 = chrono.ChBodyEasyBox(*leg.link_dim(1),rho,True,True,contact_mat)
@@ -88,6 +87,10 @@ class Model:
         # Joints
         if body_constraint == 'y':
             joint_ground_body = chrono.ChLinkMateGeneric(True, False, True, True, True, True)
+        elif body_constraint == 'xyz':
+            joint_ground_body = chrono.ChLinkMateGeneric(True, True, True, True, True, True)
+        elif body_constraint == 'xy':
+            joint_ground_body = chrono.ChLinkMateGeneric(False, False, True, True, True, True)
         else:
             joint_ground_body = chrono.ChLinkMateGeneric(False, False, True, True, True, False)
         joint_ground_body.Initialize(ground, self.body, chrono.ChFrameD(chrono.VNULL))
@@ -169,7 +172,7 @@ class Model:
         self.motor_crank1.Initialize(crank1,link1,chrono.ChFrameD(chrono.ChVectorD(*leg.link_pts(4)[:,0])))
         self.motor_crank1_servo = motor.Servo(
             lambda:self.motor_crank1.GetMotorRot(),
-            pdi=[0.2,1.0,0.0005]
+            pdi=[0.2,1.0,0.003]
         )
         self.motor_crank1.SetTorqueFunction(self.motor_crank1_servo)
         self.system.Add(self.motor_crank1)

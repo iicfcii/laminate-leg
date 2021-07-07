@@ -15,8 +15,8 @@ class Leg:
 
     l0 = 0.05 # Body dimension
     l0f = l0/2
-    w0 = 0.03
-    t0 = 0.04
+    w0 = 0.02
+    t0 = 0.02
 
     t_ref = -PI/2 # Refence virtual leg angle
 
@@ -50,13 +50,13 @@ class Leg:
             # Double check using fk
             # ik might find solution in the other form
             ps = self.fk(*qs)
-            assert ps is not None, 'ls={} qs={} is an incorrect four bar'.format([self.l1,self.l2,self.l3],qs)
+            assert ps is not None, 'ls={} qs={} is an incorrect four bar form'.format([self.l1,self.l2,self.l3],qs)
 
             v_tip = ps[3][:,1] - np.array([0,Leg.h,0])
             l_fk = np.linalg.norm(v_tip)
             t_fk = np.arctan2(v_tip[1],v_tip[0])
 
-            assert np.abs(l_fk-l) < 1e-5 and np.abs(t_fk-Leg.t_ref) < 1e-5, 'ls={} qs={} is an incorrect four bar'.format([self.l1,self.l2,self.l3],qs)
+            assert np.abs(l_fk-l) < 1e-5 and np.abs(t_fk-Leg.t_ref) < 1e-5, 'ls={} qs={} is an incorrect four bar form'.format([self.l1,self.l2,self.l3],qs)
 
             self.ik_lookup.append([l,*qs])
         self.ik_lookup = np.array(self.ik_lookup)
@@ -203,7 +203,7 @@ class Leg:
 
     def link_dim(self, n):
         ds = [
-            [Leg.l0,Leg.t*10,Leg.w*2],
+            [Leg.l0,Leg.t0,Leg.w0],
             [self.l1,Leg.t,Leg.w],
             [self.l2+self.l6,Leg.t,Leg.w],
             [self.l3+self.l9,Leg.t,Leg.w],

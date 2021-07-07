@@ -22,8 +22,8 @@ if __name__ ==  '__main__':
 
     data.write(
         'data/opt_height.csv',
-        ['l']+list(sim_data.keys()),
-        [l]+list(sim_data.values())
+        ['l']+['k']+list(sim_data.keys()),
+        [l]+[k]+list(sim_data.values())
     )
 
     plt.close('all')

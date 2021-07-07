@@ -4,6 +4,10 @@ PI = np.pi
 DEG_2_RAD = PI/180
 
 class Jump():
+    t_settle = 0.5
+    tol_pose = 0.03
+    threshold_pose = 100
+
     def __init__(self, model):
         self.model = model
 
@@ -11,8 +15,14 @@ class Jump():
 
         self.angles_retracted = np.array(self.model.leg.est_ik(-90*DEG_2_RAD,self.model.leg.lmin))-servo_offset
         self.angles_extended = np.array(self.model.leg.est_ik(-90*DEG_2_RAD,self.model.leg.lmax))-servo_offset
-        self.contact = True
+
         self.ddy_pre = 0
+
+
+        self.retracted_counter = 0
+        self.extended_counter = 0
+
+        self.move(self.angles_retracted)
 
     def move(self,angles):
         self.model.motor_hip_servo.set_t(angles[0])
@@ -21,33 +31,47 @@ class Jump():
     def control(self):
         t = self.model.system.GetChTime()
 
-        if t < 1:
-            self.move(self.angles_retracted)
-            return
-
         ddy = self.model.body.GetPos_dtdt().y
-        tol = 0.05
 
-        if self.contact:
-            self.move(self.angles_extended)
+        if t < Jump.t_settle:
+            self.model.body.SetBodyFixed(True)
         else:
-            self.move(self.angles_retracted)
+            self.model.body.SetBodyFixed(False)
 
-        # Contact detection
-        if (
+        retracted = self.retracted_counter > Jump.threshold_pose
+        extended = self.extended_counter > Jump.threshold_pose
+        contact = (
             ddy*self.ddy_pre < 0 and
             self.ddy_pre < 0 and
-            not self.contact
-        ):
+            # np.abs(ddy-self.ddy_pre) > 10 and
+            t > Jump.t_settle
+        )
+
+        if contact and retracted:
             # print('contact', t)
-            self.contact = True
+            self.move(self.angles_extended)
+            self.retracted_counter = 0
+
+        if extended:
+            # print('extended', t)
+            self.move(self.angles_retracted)
+            self.extended_counter = 0
+
+        # Leg pose detection
+        if (
+            np.abs(self.model.motor_hip.GetMotorRot()-self.angles_extended[0]) < Jump.tol_pose and
+            np.abs(self.model.motor_crank1.GetMotorRot()-self.angles_extended[1]) < Jump.tol_pose
+        ):
+            self.extended_counter += 1
+        else:
+            self.extended_counter = 0
 
         if (
-            np.abs(self.model.motor_hip.GetMotorRot()-self.angles_extended[0]) < tol and
-            np.abs(self.model.motor_crank1.GetMotorRot()-self.angles_extended[1]) < tol and
-            self.contact
+            np.abs(self.model.motor_hip.GetMotorRot()-self.angles_retracted[0]) < Jump.tol_pose and
+            np.abs(self.model.motor_crank1.GetMotorRot()-self.angles_retracted[1]) < Jump.tol_pose
         ):
-            # print('No contact', t)
-            self.contact = False
+            self.retracted_counter += 1
+        else:
+            self.retracted_counter = 0
 
         self.ddy_pre = ddy

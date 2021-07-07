@@ -15,22 +15,27 @@ plt.close('all')
 
 lb = [0.03, 0.08]
 
-l = [0.044182071212609426, 0.053567376895378764, 0.002250551892011815]
-k = [782.4464030842482, 896.1515354219578]
+l = [0.04382925530061739, 0.0454821144030563, 0.010688630296326315]
+k = [999.9478299415413, 911.4497315774337]
+
+# l = [0.03,0.04,0.03]
+# k = [500,1000]
 
 leg = Leg(l,k,lb)
 
 leg.plot(leg.q1,leg.q2)
 plt.title('Rest pose')
-plt.figure()
-for l_ref, q1, q2 in leg.ik_lookup:
-    leg.plot(q1, q2, new=False)
-plt.title('Length workspace')
-plt.figure()
-for l_ref in np.linspace(lb[0],lb[1],30):
-    q1, q2 = leg.est_ik(-PI/2, l_ref)
-    leg.plot(q1, q2, new=False)
-plt.title('Length IK')
+leg.plot(*leg.ik_lookup[0,1:])
+plt.title('Retract pose')
+# plt.figure()
+# for l_ref, q1, q2 in leg.ik_lookup:
+#     leg.plot(q1, q2, new=False)
+# plt.title('Length workspace')
+# plt.figure()
+# for l_ref in np.linspace(lb[0],lb[1],30):
+#     q1, q2 = leg.est_ik(-PI/2, l_ref)
+#     leg.plot(q1, q2, new=False)
+# plt.title('Length IK')
 
 model = Model(leg, body_constraint='y')
 controller = Jump(model)

@@ -28,7 +28,7 @@ def obj(x):
     try:
         leg = Leg(toL(x),toK(x),lb)
     except AssertionError:
-        return 0
+        return 10
 
     model = Model(leg)
     controller = Jump(model)
@@ -47,7 +47,7 @@ def average_height(sim_data):
     hs = []
     for i in range(len(sim_data['body_dy'])-1):
         t = sim_data['time'][i]
-        if t < 1: continue
+        if t < Jump.t_settle: continue
 
         dy = sim_data['body_dy'][i]
         dy_next = sim_data['body_dy'][i+1]
@@ -75,8 +75,8 @@ def run():
     res = differential_evolution(
         obj,
         bounds=[(l_min,l_max),(l_min,l_max),(k_min,k_max),(k_min,k_max)],
-        constraints=LinearConstraint(np.array([[1,1,0,0]]),0,l),
-        popsize=5,
+        constraints=LinearConstraint(np.array([[1,1,0,0]]),0,l-l_min),
+        popsize=10,
         callback=cb,
         workers=-1,
         polish=False,
