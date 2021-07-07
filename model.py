@@ -45,7 +45,7 @@ class Model:
         self.body.SetRot(chrono.Q_from_AngZ(Leg.link_rotz(leg.link_pts(0))))
         self.body.GetCollisionModel().SetFamily(1)
         self.body.GetCollisionModel().SetFamilyMaskNoCollisionWithFamily(1)
-        if body_constraint=='fixed': self.body.SetBodyFixed(fixed_body)
+        if body_constraint=='xyz': self.body.SetBodyFixed(True)
         self.system.Add(self.body)
 
         link1 = chrono.ChBodyEasyBox(*leg.link_dim(1),rho,True,True,contact_mat)

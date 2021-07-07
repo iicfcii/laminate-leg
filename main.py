@@ -5,7 +5,7 @@ import sim
 import data
 from model import Model
 from leg import Leg
-from controller import SingleJump, MultipleJump
+from controller import Jump
 
 if __name__ ==  '__main__':
     res = optimize.run()
@@ -15,9 +15,9 @@ if __name__ ==  '__main__':
 
     l = optimize.toL(res.x)
     k = optimize.toK(res.x)
-    leg = Leg(*l,*k)
+    leg = Leg(l,k,optimize.lb)
     model = Model(leg)
-    controller = MultipleJump(model)
+    controller = Jump(model)
     sim_data = sim.run(model, controller=controller, tfinal=optimize.tf, step=optimize.step, vis=True)
 
     data.write(
@@ -27,5 +27,5 @@ if __name__ ==  '__main__':
     )
 
     plt.close('all')
-    leg.plot()
+    leg.plot(leg.q1, leg.q2)
     print('Height',optimize.average_height(sim_data))

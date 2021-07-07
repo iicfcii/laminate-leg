@@ -5,7 +5,7 @@ from scipy.optimize import minimize
 PI = np.pi
 DEG_2_RAD = np.pi/180
 
-def acalc(bad,ad,ab,bc,cd,form=0):
+def calc(bad,ad,ab,bc,cd,form=0):
     l = np.sqrt(ad**2+ab**2-2*ad*ab*np.cos(bad))
 
     cos_bcd = (bc**2+cd**2-l**2)/(2*bc*cd)
@@ -35,7 +35,7 @@ def acalc(bad,ad,ab,bc,cd,form=0):
 
     return pts, ts
 
-def calc(crank_angle,ground_length,crank_length,coupler_length,output_length,x0,plot=False):
+def calc_opt(crank_angle,ground_length,crank_length,coupler_length,output_length,x0,plot=False):
     def obj(pts,crank_angle,ground_length,crank_length,coupler_length,output_length):
         pts = pts.reshape((-1,2))
         vcrank = pts[1,:]-pts[0,:]
