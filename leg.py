@@ -50,13 +50,13 @@ class Leg:
             # Double check using fk
             # ik might find solution in the other form
             ps = self.fk(*qs)
-            assert ps is not None, 'ls={} qs={} is an incorrect four bar form'.format([self.l1,self.l2,self.l3],qs)
+            assert ps is not None, 'l={} ls={} qs={} is an incorrect four bar form'.format(l,[self.l1,self.l2,self.l3],qs)
 
             v_tip = ps[3][:,1] - np.array([0,Leg.h,0])
             l_fk = np.linalg.norm(v_tip)
             t_fk = np.arctan2(v_tip[1],v_tip[0])
 
-            assert np.abs(l_fk-l) < 1e-5 and np.abs(t_fk-Leg.t_ref) < 1e-5, 'ls={} qs={} is an incorrect four bar form'.format([self.l1,self.l2,self.l3],qs)
+            assert np.abs(l_fk-l) < 1e-5 and np.abs(t_fk-Leg.t_ref) < 1e-5, 'l={} ls={} qs={} is an incorrect four bar form'.format(l,[self.l1,self.l2,self.l3],qs)
 
             self.ik_lookup.append([l,*qs])
         self.ik_lookup = np.array(self.ik_lookup)
@@ -155,21 +155,22 @@ class Leg:
             return np.abs(x-xp)
 
         trial_count = 0
-        e = 1
-        while e > 1e-6 and trial_count < 5:
+        while True:
             result = differential_evolution(obj,bounds=[(-PI,0)],popsize=10)
-            e = result.fun
+
+            if result.fun < 1e-6:
+                x = result.x[0]
+                ps_mid, ts_mid = fourbar.calc(x,self.l2,self.l3,l,self.l1)
+                ps_low, ts_low = fourbar.calc(ts_mid[-1]+PI,self.l1,self.l6,self.l5,self.l4)
+
+                q2 = -ts_low[-1]
+                q2p = -(PI+ts_mid[-1])
+                q1 = t+PI-ts_mid[2]+ts_mid[3]
+
+                if q2p > -PI and q2p < 0: return q1, q2 # Actual link2 angle is within -pi-0
+
             trial_count = trial_count + 1
-
-        if trial_count >= 5: return None
-
-        x = result.x[0]
-        ps_mid, ts_mid = fourbar.calc(x,self.l2,self.l3,l,self.l1)
-        ps_low, ts_low = fourbar.calc(ts_mid[-1]+PI,self.l1,self.l6,self.l5,self.l4)
-        q2 = -ts_low[-1]
-        q1 = t+PI-ts_mid[2]+ts_mid[3]
-
-        return q1, q2
+            if trial_count > 9: return None
 
     def est_ik(self, t, l):
         lp = self.ik_lookup[:,0]

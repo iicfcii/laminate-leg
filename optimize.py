@@ -76,7 +76,7 @@ def run():
         obj,
         bounds=[(l_min,l_max),(l_min,l_max),(k_min,k_max),(k_min,k_max)],
         constraints=LinearConstraint(np.array([[1,1,0,0]]),0,l-l_min),
-        popsize=10,
+        popsize=5,
         callback=cb,
         workers=-1,
         polish=False,
