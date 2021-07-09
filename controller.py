@@ -11,16 +11,13 @@ class Jump():
     def __init__(self, model):
         self.model = model
 
-        servo_offset = np.array(self.model.leg.est_ik(-90*DEG_2_RAD,self.model.leg.lmax))
-
-        self.angles_retracted = np.array(self.model.leg.est_ik(-90*DEG_2_RAD,self.model.leg.lmin))-servo_offset
-        self.angles_extended = np.array(self.model.leg.est_ik(-90*DEG_2_RAD,self.model.leg.lmax))-servo_offset
-
-        self.ddy_pre = 0
-
+        self.servo_offset = np.array(self.model.leg.est_ik(-PI/2,self.model.leg.lmax))
+        self.angles_retracted = np.array(self.model.leg.est_ik(-PI/2,self.model.leg.lmin))-self.servo_offset
+        self.angles_extended = np.array(self.model.leg.est_ik(-PI/2,self.model.leg.lmax))-self.servo_offset
 
         self.retracted_counter = 0
         self.extended_counter = 0
+        self.ddy_pre = 0
 
         self.move(self.angles_retracted)
 
@@ -43,7 +40,6 @@ class Jump():
         contact = (
             ddy*self.ddy_pre < 0 and
             self.ddy_pre < 0 and
-            # np.abs(ddy-self.ddy_pre) > 10 and
             t > Jump.t_settle
         )
 

@@ -87,13 +87,15 @@ class Model:
         # Joints
         if body_constraint == 'y':
             joint_ground_body = chrono.ChLinkMateGeneric(True, False, True, True, True, True)
-        elif body_constraint == 'xyz':
-            joint_ground_body = chrono.ChLinkMateGeneric(True, True, True, True, True, True)
+        elif body_constraint == 'z':
+            joint_ground_body = chrono.ChLinkMateGeneric(True, True, True, True, True, False)
         elif body_constraint == 'xy':
             joint_ground_body = chrono.ChLinkMateGeneric(False, False, True, True, True, True)
-        else:
+        elif body_constraint == 'xyz':
             joint_ground_body = chrono.ChLinkMateGeneric(False, False, True, True, True, False)
-        joint_ground_body.Initialize(ground, self.body, chrono.ChFrameD(chrono.VNULL))
+        else:
+            joint_ground_body = chrono.ChLinkMateGeneric(True, True, True, True, True, True)
+        joint_ground_body.Initialize(ground, self.body, chrono.ChFrameD(self.body.GetPos()))
         self.system.Add(joint_ground_body)
 
         joint_body_link1 = chrono.ChLinkMateGeneric(True,True,True,True,True,False)
