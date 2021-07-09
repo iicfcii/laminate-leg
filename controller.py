@@ -71,3 +71,21 @@ class Jump():
             self.retracted_counter = 0
 
         self.ddy_pre = ddy
+
+class Angle():
+    t_settle = 0.5
+
+    def __init__(self, model):
+        self.model = model
+
+        self.q1_i, self.q2_i = np.array(self.model.leg.est_ik(-PI/2,self.model.leg.lmax))
+
+        self.model.motor_hip_servo.setup(
+            lambda:self.model.body.GetRot().Q_to_Euler123().z+self.model.motor_hip.GetMotorRot()+self.q1_i, # Hip angle wrt ground
+            pdi=[0.2,0.0,0.0]
+        )
+        self.model.motor_hip_servo.set_t(self.q1_i+PI/6)
+        self.model.motor_crank1_servo.set_t(0)
+
+    def control(self):
+        t = self.model.system.GetChTime()

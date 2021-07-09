@@ -22,11 +22,6 @@ class Recorder:
             'body_rz': [],
         }
 
-        if not self.model.passive_ankle:
-            self.data['crank2_torque'] = []
-            self.data['crank2_angle'] = []
-            self.data['crank2_speed'] = []
-
     def record(self):
         self.data['time'].append(self.model.system.GetChTime())
 
@@ -43,11 +38,6 @@ class Recorder:
         self.data['body_ddy'].append(self.model.body.GetPos_dtdt().y)
 
         self.data['body_rz'].append(self.model.body.GetRot().Q_to_Euler123().z)
-
-        if not self.model.passive_ankle:
-            self.data['crank2_torque'].append(self.model.motor_crank2.GetMotorTorque())
-            self.data['crank2_angle'].append(self.model.motor_crank2.GetMotorRot())
-            self.data['crank2_speed'].append(self.model.motor_crank2.GetMotorRot_dt())
 
 def run(model, controller=None, tfinal=5, step=5e-4, vis=True, capture=0):
     system = model.system

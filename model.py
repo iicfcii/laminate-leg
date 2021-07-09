@@ -15,10 +15,9 @@ class RotSpringTorque(chrono.TorqueFunctor):
         return torque
 
 class Model:
-    def __init__(self, leg, passive_ankle=True, body_constraint='y'):
+    def __init__(self, leg, body_constraint='y'):
         rho = leg.density()
 
-        self.passive_ankle = passive_ankle
         self.leg = leg
 
         self.system = chrono.ChSystemNSC()
@@ -42,7 +41,6 @@ class Model:
 
         self.body = chrono.ChBodyEasyBox(*leg.link_dim(0),rho,True,True,contact_mat)
         self.body.SetPos(chrono.ChVectorD(*Leg.link_center(leg.link_pts(0))))
-        self.body.SetRot(chrono.Q_from_AngZ(Leg.link_rotz(leg.link_pts(0))))
         self.body.GetCollisionModel().SetFamily(1)
         self.body.GetCollisionModel().SetFamilyMaskNoCollisionWithFamily(1)
         self.system.Add(self.body)
@@ -67,14 +65,6 @@ class Model:
         link2.GetCollisionModel().SetFamily(1)
         link2.GetCollisionModel().SetFamilyMaskNoCollisionWithFamily(1)
         self.system.Add(link2)
-
-        if not passive_ankle:
-            crank2 = chrono.ChBodyEasyBox(*leg.link_dim(5),rho,True,True,contact_mat)
-            crank2.SetPos(chrono.ChVectorD(*Leg.link_center(leg.link_pts(5))))
-            crank2.SetRot(chrono.Q_from_AngZ(Leg.link_rotz(leg.link_pts(5))))
-            crank2.GetCollisionModel().SetFamily(1)
-            crank2.GetCollisionModel().SetFamilyMaskNoCollisionWithFamily(1)
-            self.system.Add(crank2)
 
         link3 = chrono.ChBodyEasyBox(*leg.link_dim(3),rho,True,True,contact_mat)
         link3.SetPos(chrono.ChVectorD(*Leg.link_center(leg.link_pts(3))))
@@ -109,11 +99,6 @@ class Model:
         joint_link1_link2 = chrono.ChLinkMateGeneric(True,True,True,True,True,False)
         joint_link1_link2.Initialize(link1,link2,chrono.ChFrameD(chrono.ChVectorD(*leg.link_pts(1)[:,1])))
         self.system.Add(joint_link1_link2)
-
-        if not passive_ankle:
-            joint_link2_crank2 = chrono.ChLinkMateGeneric(True,True,True,True,True,False)
-            joint_link2_crank2.Initialize(link2,crank2,chrono.ChFrameD(chrono.ChVectorD(*leg.link_pts(5)[:,0])))
-            self.system.Add(joint_link2_crank2)
 
         joint_link2_link3 = chrono.ChLinkMateGeneric(True,True,True,True,True,False)
         joint_link2_link3.Initialize(link2,link3,chrono.ChFrameD(chrono.ChVectorD(*leg.link_pts(2)[:,1])))
@@ -154,7 +139,7 @@ class Model:
         spring_crank2_link3.SetSpringCoefficient(leg.spring_kb(4)[0])
         spring_crank2_link3.SetDampingCoefficient(leg.spring_kb(4)[1])
         spring_crank2_link3.Initialize(
-            crank2 if not passive_ankle else link1,link3,False,
+            link1,link3,False,
             chrono.ChVectorD(*leg.link_pts(5)[:,1]),chrono.ChVectorD(*leg.link_pts(3)[:,0]),
             True
         )
@@ -179,18 +164,6 @@ class Model:
         self.motor_crank1.SetTorqueFunction(self.motor_crank1_servo)
         self.system.Add(self.motor_crank1)
 
-        if not passive_ankle:
-            self.motor_crank2 = chrono.ChLinkMotorRotationTorque()
-            self.motor_crank2.Initialize(crank2,link2,chrono.ChFrameD(chrono.ChVectorD(*leg.link_pts(5)[:,0])))
-            def motor_crank2_rot():
-                return self.motor_crank2.GetMotorRot()
-            self.motor_crank2_servo = motor.Servo(
-                lambda:self.motor_crank2.GetMotorRot(),
-                pdi=[0.2,0.1,0.0005]
-            )
-            self.motor_crank2.SetMotorFunction(self.motor_crank2_servo)
-            self.system.Add(self.motor_crank2)
-
         # Visuals
         spring = chrono.ChPointPointSpring(0.001, 100, 20)
         color_red = chrono.ChColorAsset()
@@ -199,7 +172,6 @@ class Model:
         color_green.SetColor(chrono.ChColor(0, 1.0, 0))
 
         crank1.AddAsset(color_red)
-        if not passive_ankle: crank2.AddAsset(color_red)
         spring_crank1_link2.AddAsset(color_green)
         spring_crank1_link2.AddAsset(spring)
         spring_crank2_link3.AddAsset(color_green)

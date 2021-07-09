@@ -3,7 +3,7 @@ import numpy as np
 
 from model import Model
 from leg import Leg
-from controller import Jump
+from controller import Jump, Angle
 import sim
 import optimize
 import data
@@ -15,14 +15,14 @@ plt.close('all')
 
 lb = [0.03, 0.08]
 
-l = [0.042483213261197125, 0.04539294608707662, 0.01212384065172626]
-k = [999.7529990102761, 980.1012318013156]
+# l = [0.042483213261197125, 0.04539294608707662, 0.01212384065172626]
+# k = [999.7529990102761, 980.1012318013156]
 
 # l = [0.011385901998146312, 0.0470839607522986, 0.04153013724955509]
 # k = [2964.6653072717927, 2862.6938048475604]
 
-# l = [0.03,0.04,0.03]
-# k = [1000,1000]
+l = [0.03,0.04,0.03]
+k = [2000,2000]
 
 leg = Leg(l,k,lb)
 
@@ -50,7 +50,7 @@ data.write(
     [l]+[k]+list(sim_data.values())
 )
 # sim_data = data.read(file_name)
-print('Height',optimize.average_height(sim_data))
+# print('Height',optimize.average_height(sim_data))
 
 plt.figure()
 plt.plot(sim_data['time'], sim_data['hip_torque'], label='hip')
@@ -73,9 +73,9 @@ plt.plot(sim_data['time'], sim_data['body_dy'])
 plt.subplot(313)
 plt.plot(sim_data['time'], sim_data['body_ddy'])
 
-# plt.figure()
-# plt.plot(sim_data['time'], sim_data['body_rz'], label='rz')
-# plt.title('Body rz')
-# plt.legend()
+plt.figure()
+plt.plot(sim_data['time'], sim_data['body_rz'], label='rz')
+plt.title('Body rz')
+plt.legend()
 
 plt.show()
