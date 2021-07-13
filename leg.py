@@ -15,8 +15,8 @@ class Leg:
 
     l0 = 0.05 # Body dimension
     l0f = l0/2
-    w0 = 0.02
-    t0 = 0.02
+    w0 = 0.05
+    t0 = 0.01
 
     t_ref = -PI/2 # Refence virtual leg angle
 
@@ -189,12 +189,18 @@ class Leg:
     def link_rotz(pts):
         return np.arctan2(pts[1,1]-pts[1,0],pts[0,1]-pts[0,0])
 
+    def limit_angle(t): # Limit angle range to -pi to pi
+        t = np.fmod(t, 2*PI)
+        if t > PI: t = t - 2*PI
+        if t < -PI: t = t + 2*PI
+        return t
+
     def density(self):
         return 1000
 
     def spring_kb(self, n):
         kbs = [
-            [0.020, 0.0005],
+            [0.000, 0.0020],
             [0.020, 0.0005],
             [0.020, 0.0005],
             [self.k4, 0.1],

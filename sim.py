@@ -2,6 +2,8 @@ import pychrono as chrono
 import pychrono.irrlicht as chronoirr
 import numpy as np
 
+from leg import Leg
+
 chrono.SetChronoDataPath('C:/Users/cfc34/miniconda3/pkgs/pychrono-6.0.0-py37_223/Library/data/')
 PI = np.pi
 
@@ -12,32 +14,29 @@ class Recorder:
             'time': [],
             'hip_torque': [],
             'hip_angle': [],
-            'hip_speed': [],
-            'crank1_torque': [],
-            'crank1_angle': [],
-            'crank1_speed': [],
-            'body_y': [],
-            'body_dy': [],
-            'body_ddy': [],
-            'body_rz': [],
+            'leg_angle':[],
+            'leg_length':[],
+            'body_rz': []
         }
 
     def record(self):
         self.data['time'].append(self.model.system.GetChTime())
 
         self.data['hip_torque'].append(self.model.motor_hip.GetMotorTorque())
-        self.data['hip_angle'].append(self.model.motor_hip.GetMotorRot())
-        self.data['hip_speed'].append(self.model.motor_hip.GetMotorRot_dt())
-
-        self.data['crank1_torque'].append(self.model.motor_crank1.GetMotorTorque())
-        self.data['crank1_angle'].append(self.model.motor_crank1.GetMotorRot())
-        self.data['crank1_speed'].append(self.model.motor_crank1.GetMotorRot_dt())
-
-        self.data['body_y'].append(self.model.body.GetPos().y)
-        self.data['body_dy'].append(self.model.body.GetPos_dt().y)
-        self.data['body_ddy'].append(self.model.body.GetPos_dtdt().y)
+        self.data['hip_angle'].append(Leg.limit_angle(self.model.motor_hip.GetMotorRot()))
 
         self.data['body_rz'].append(self.model.body.GetRot().Q_to_Euler123().z)
+
+        body_pos = self.model.body.GetPos()
+        body_pos = np.array([body_pos.x,body_pos.y,body_pos.z])
+        tip_pos = self.model.link4.GetPos()
+        tip_pos = np.array([tip_pos.x,tip_pos.y,tip_pos.z])
+        leg_v = tip_pos-body_pos
+        leg_length = np.linalg.norm(leg_v)
+        leg_angle = np.arctan2(leg_v[1],leg_v[0])
+
+        self.data['leg_angle'].append(leg_angle)
+        self.data['leg_length'].append(leg_length)
 
 def run(model, controller=None, tfinal=5, step=5e-4, vis=True, capture=0):
     system = model.system
