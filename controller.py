@@ -49,9 +49,9 @@ class Jump():
         f_contact = np.linalg.norm([f_contact.x,f_contact.y,f_contact.z])
         f_contact = Jump.a_contact*f_contact+(1-Jump.a_contact)*self.f_contact_pre
 
-        lr = 0.06
+        lr = 0.05
         le = 0.08
-        lt = -PI/2-0.4*(0-x)-0.3*(0-dx)
+        lt = -PI/2-0.4*(0-x)-0.5*(0-dx)
 
         if self.state == 'fixed':
             self.model.body.SetBodyFixed(True)
