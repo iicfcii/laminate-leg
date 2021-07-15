@@ -57,15 +57,11 @@ plt.plot(sim_data['time'], sim_data['hip_torque'])
 plt.title('Torque')
 
 plt.figure()
-plt.plot(sim_data['time'], sim_data['hip_angle'])
-plt.title('Angle')
-
-plt.figure()
-plt.plot(sim_data['time'], sim_data['leg_angle'])
-plt.title('Leg')
-
-plt.figure()
-plt.plot(sim_data['time'], sim_data['body_rz'])
-plt.title('Body')
+plt.subplot(211)
+plt.plot(sim_data['time'], sim_data['body_x'])
+plt.title('Body x')
+plt.subplot(212)
+plt.plot(sim_data['time'], sim_data['body_y'])
+plt.title('Body y')
 
 plt.show()

@@ -3,6 +3,7 @@ import pychrono.irrlicht as chronoirr
 import numpy as np
 
 from leg import Leg
+from controller import Jump
 
 chrono.SetChronoDataPath('C:/Users/cfc34/miniconda3/pkgs/pychrono-6.0.0-py37_223/Library/data/')
 PI = np.pi
@@ -16,7 +17,10 @@ class Recorder:
             'hip_angle': [],
             'leg_angle':[],
             'leg_length':[],
-            'body_rz': []
+            'body_x': [],
+            'body_y': [],
+            'body_drz': [],
+            'contact_f': []
         }
 
     def record(self):
@@ -25,7 +29,10 @@ class Recorder:
         self.data['hip_torque'].append(self.model.motor_hip.GetMotorTorque())
         self.data['hip_angle'].append(Leg.limit_angle(self.model.motor_hip.GetMotorRot()))
 
-        self.data['body_rz'].append(self.model.body.GetRot().Q_to_Euler123().z)
+        self.data['body_x'].append(self.model.body.GetPos().x)
+        self.data['body_y'].append(self.model.body.GetPos().y)
+
+        self.data['body_drz'].append(self.model.body.GetWvel_loc().z)
 
         body_pos = self.model.body.GetPos()
         body_pos = np.array([body_pos.x,body_pos.y,body_pos.z])
@@ -37,6 +44,12 @@ class Recorder:
 
         self.data['leg_angle'].append(leg_angle)
         self.data['leg_length'].append(leg_length)
+
+        contact_f = self.model.link4.GetContactForce()
+        contact_f = np.linalg.norm([contact_f.x,contact_f.y,contact_f.z])
+        if len(self.data['contact_f']) > 0:
+            contact_f = Jump.a_contact*contact_f+(1-Jump.a_contact)*self.data['contact_f'][-1]
+        self.data['contact_f'].append(contact_f)
 
 def run(model, controller=None, tfinal=5, step=5e-4, vis=True, capture=0):
     system = model.system

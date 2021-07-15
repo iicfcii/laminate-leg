@@ -15,7 +15,7 @@ class Leg:
 
     l0 = 0.05 # Body dimension
     l0f = l0/2
-    w0 = 0.05
+    w0 = 0.02
     t0 = 0.01
 
     t_ref = -PI/2 # Refence virtual leg angle

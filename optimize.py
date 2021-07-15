@@ -6,7 +6,7 @@ from leg import Leg
 from controller import Jump
 import sim
 
-tf = 3
+tf = 10
 step = 2e-4
 
 l = 0.1

@@ -59,15 +59,13 @@ class Servo(chrono.ChFunction):
                 e_sum -= e
                 out = out_pd
 
-
-
             # Limit max torque
             if out > self.max_torque:
                 out = self.max_torque
             if out < -self.max_torque:
                 out = -self.max_torque
 
-            # if self.name == 'hip': print('t={:.3f} e={:.3f} de={:.3f} esum={:.3f} out={:.3f}'.format(x, e,de,e_sum, out))
+            # if self.name == 'body': print('t={:.3f} e={:.3f} de={:.3f} esum={:.3f} out={:.3f}'.format(x, e,de,e_sum, out))
             self.e_pre = e
             self.e_sum = e_sum
 
