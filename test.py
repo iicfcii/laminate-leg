@@ -13,18 +13,22 @@ PI = np.pi
 
 plt.close('all')
 
-lb = [0.03, 0.08]
+# # max k 3000
+# l = [0.04515207233110659, 0.04287188912111829, 0.011976038547775125]
+# k = [2576.09682619896, 1978.0998986420916]
 
-# l = [0.039966029940051474, 0.04589268086621596, 0.014141289193732573]
-# k = [999.3872170753998, 999.2124658221269]
+# # max k 2000
+# l = [0.048032839599790045, 0.0385249302606569, 0.013442230139553063]
+# k = [1370.406089914368, 1559.1034161966104]
 
-# l = [0.01160912475345141, 0.0495495427586799, 0.038841332487868696]
-# k = [2626.9241287484147, 1903.5400080474717]
+# # max k 1000
+# l = [0.05229882821338931, 0.03763365559476119, 0.010067516191849507]
+# k = [993.6350437346102, 102.65713045659305]
 
 l = [0.03,0.04,0.03]
-k = [2000,2000]
+k = [1000,1000]
 
-leg = Leg(l,k,lb)
+leg = Leg(l,k,optimize.lb)
 
 leg.plot(leg.q1,leg.q2)
 plt.title('Rest pose')
@@ -40,9 +44,9 @@ plt.title('Retract pose')
 #     leg.plot(q1, q2, new=False)
 # plt.title('Length IK')
 
-model = Model(leg, body_constraint='xyz')
+model = Model(leg)
 controller = Jump(model)
-sim_data = sim.run(model, controller=controller, tfinal=optimize.tf, step=optimize.step, vis=True, capture=0)
+sim_data = sim.run(model, controller=controller, tfinal=10, step=optimize.step, vis=True, capture=0)
 file_name = 'data/test.csv'
 data.write(
     file_name,
@@ -50,7 +54,7 @@ data.write(
     [l]+[k]+list(sim_data.values())
 )
 # sim_data = data.read(file_name)
-# print('Height',optimize.average_height(sim_data))
+print('Height',optimize.average_height(sim_data))
 
 plt.figure()
 plt.plot(sim_data['time'], sim_data['hip_torque'])
@@ -63,5 +67,11 @@ plt.title('Body x')
 plt.subplot(212)
 plt.plot(sim_data['time'], sim_data['body_y'])
 plt.title('Body y')
+
+plt.figure()
+plt.plot(sim_data['time'], sim_data['spring1_x'], label='spring 1')
+plt.plot(sim_data['time'], sim_data['spring2_x'], label='spring 2')
+plt.title('Spring x')
+plt.legend()
 
 plt.show()

@@ -18,7 +18,7 @@ class RotSpringTorque(chrono.TorqueFunctor):
         return torque
 
 class Model:
-    def __init__(self, leg, body_constraint='y'):
+    def __init__(self, leg, body_constraint='xyz'):
         rho = leg.density()
 
         self.leg = leg
@@ -145,26 +145,26 @@ class Model:
         self.system.AddLink(spring_link2_link3)
 
         # Double joint springs
-        spring_crank1_link2 = chrono.ChLinkTSDA()
-        spring_crank1_link2.SetSpringCoefficient(leg.spring_kb(3)[0])
-        spring_crank1_link2.SetDampingCoefficient(leg.spring_kb(3)[1])
-        spring_crank1_link2.Initialize(
+        self.spring_crank1_link2 = chrono.ChLinkTSDA()
+        self.spring_crank1_link2.SetSpringCoefficient(leg.spring_kb(3)[0])
+        self.spring_crank1_link2.SetDampingCoefficient(leg.spring_kb(3)[1])
+        self.spring_crank1_link2.Initialize(
             crank1,link2,False,
             chrono.ChVectorD(*leg.link_pts(4)[:,1]),chrono.ChVectorD(*leg.link_pts(2)[:,0]),
             True
         )
-        self.system.AddLink(spring_crank1_link2)
+        self.system.AddLink(self.spring_crank1_link2)
 
 
-        spring_crank2_link3 = chrono.ChLinkTSDA()
-        spring_crank2_link3.SetSpringCoefficient(leg.spring_kb(4)[0])
-        spring_crank2_link3.SetDampingCoefficient(leg.spring_kb(4)[1])
-        spring_crank2_link3.Initialize(
+        self.spring_crank2_link3 = chrono.ChLinkTSDA()
+        self.spring_crank2_link3.SetSpringCoefficient(leg.spring_kb(4)[0])
+        self.spring_crank2_link3.SetDampingCoefficient(leg.spring_kb(4)[1])
+        self.spring_crank2_link3.Initialize(
             self.link1,link3,False,
             chrono.ChVectorD(*leg.link_pts(5)[:,1]),chrono.ChVectorD(*leg.link_pts(3)[:,0]),
             True
         )
-        self.system.AddLink(spring_crank2_link3)
+        self.system.AddLink(self.spring_crank2_link3)
 
         # Motors
         self.motor_hip = chrono.ChLinkMotorRotationTorque()
@@ -183,7 +183,7 @@ class Model:
         color_green.SetColor(chrono.ChColor(0, 1.0, 0))
 
         crank1.AddAsset(color_red)
-        spring_crank1_link2.AddAsset(color_green)
-        spring_crank1_link2.AddAsset(spring)
-        spring_crank2_link3.AddAsset(color_green)
-        spring_crank2_link3.AddAsset(spring)
+        self.spring_crank1_link2.AddAsset(color_green)
+        self.spring_crank1_link2.AddAsset(spring)
+        self.spring_crank2_link3.AddAsset(color_green)
+        self.spring_crank2_link3.AddAsset(spring)

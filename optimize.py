@@ -16,7 +16,7 @@ l_max = l
 k_min = 100
 k_max = 3000
 
-lb = [0.03,0.08]
+lb = [0.04,0.08]
 
 def toL(x):
     return [x[0],x[1],l-x[0]-x[1]]

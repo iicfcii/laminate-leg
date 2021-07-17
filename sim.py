@@ -19,7 +19,10 @@ class Recorder:
             'leg_length':[],
             'body_x': [],
             'body_y': [],
+            'body_dy': [],
             'body_drz': [],
+            'spring1_x': [],
+            'spring2_x': [],
             'contact_f': []
         }
 
@@ -32,7 +35,12 @@ class Recorder:
         self.data['body_x'].append(self.model.body.GetPos().x)
         self.data['body_y'].append(self.model.body.GetPos().y)
 
+        self.data['body_dy'].append(self.model.body.GetPos_dt().y)
+
         self.data['body_drz'].append(self.model.body.GetWvel_loc().z)
+
+        self.data['spring1_x'].append(self.model.spring_crank1_link2.GetDeformation())
+        self.data['spring2_x'].append(self.model.spring_crank2_link3.GetDeformation())
 
         body_pos = self.model.body.GetPos()
         body_pos = np.array([body_pos.x,body_pos.y,body_pos.z])
