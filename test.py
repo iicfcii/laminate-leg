@@ -3,7 +3,7 @@ import numpy as np
 
 from model import Model
 from leg import Leg
-from controller import Jump
+from controller import Jump, SimpleJump
 import sim
 import optimize
 import data
@@ -13,20 +13,16 @@ PI = np.pi
 
 plt.close('all')
 
-# # max k 3000
-# l = [0.04515207233110659, 0.04287188912111829, 0.011976038547775125]
-# k = [2576.09682619896, 1978.0998986420916]
+# l = [0.03,0.04,0.03]
+# k = [500,500]
 
-# # max k 2000
-# l = [0.048032839599790045, 0.0385249302606569, 0.013442230139553063]
-# k = [1370.406089914368, 1559.1034161966104]
+# k: 100-500
+l = [0.04049039956352703, 0.028396032400047934, 0.031113568036425045]
+k = [497.27456933056806, 471.0976364294928]
 
-# # max k 1000
-# l = [0.05229882821338931, 0.03763365559476119, 0.010067516191849507]
-# k = [993.6350437346102, 102.65713045659305]
-
-l = [0.03,0.04,0.03]
-k = [1000,1000]
+# k: 100-1000
+l = [0.040260856392407424, 0.029048861969729906, 0.030690281637862676]
+k = [975.0691632690518, 643.716130009568]
 
 leg = Leg(l,k,optimize.lb)
 
@@ -44,9 +40,9 @@ plt.title('Retract pose')
 #     leg.plot(q1, q2, new=False)
 # plt.title('Length IK')
 
-model = Model(leg)
-controller = Jump(model)
-sim_data = sim.run(model, controller=controller, tfinal=10, step=optimize.step, vis=True, capture=0)
+model = Model(leg,body_constraint='y')
+controller = SimpleJump(model)
+sim_data = sim.run(model, controller=controller, tfinal=optimize.tf, step=optimize.step, vis=True, capture=0)
 file_name = 'data/test.csv'
 data.write(
     file_name,

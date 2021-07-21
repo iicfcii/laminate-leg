@@ -3,20 +3,20 @@ from scipy.optimize import differential_evolution, LinearConstraint
 
 from model import Model
 from leg import Leg
-from controller import Jump
+from controller import Jump, SimpleJump
 import sim
 
-tf = 10
+tf = 5
 step = 2e-4
 
 l = 0.1
-l_min = 0.01
+l_min = 0.02
 l_max = l
 
 k_min = 100
-k_max = 3000
+k_max = 500
 
-lb = [0.04,0.08]
+lb = [0.05,0.08]
 
 def toL(x):
     return [x[0],x[1],l-x[0]-x[1]]
@@ -30,8 +30,8 @@ def obj(x):
     except AssertionError:
         return 10
 
-    model = Model(leg)
-    controller = Jump(model)
+    model = Model(leg,body_constraint='y')
+    controller = SimpleJump(model)
     sim_data = sim.run(model, controller=controller, tfinal=tf, step=step, vis=False)
     h = average_height(sim_data)
 

@@ -5,7 +5,7 @@ import sim
 import data
 from model import Model
 from leg import Leg
-from controller import Jump
+from controller import Jump, SimpleJump
 
 if __name__ ==  '__main__':
     res = optimize.run()
@@ -16,8 +16,8 @@ if __name__ ==  '__main__':
     l = optimize.toL(res.x)
     k = optimize.toK(res.x)
     leg = Leg(l,k,optimize.lb)
-    model = Model(leg)
-    controller = Jump(model)
+    model = Model(leg,body_constraint='y')
+    controller = SimpleJump(model)
     sim_data = sim.run(model, controller=controller, tfinal=optimize.tf, step=optimize.step, vis=True)
 
     data.write(
