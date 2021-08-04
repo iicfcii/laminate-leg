@@ -3,7 +3,7 @@ import numpy as np
 
 from model import Model
 from leg import Leg
-from controller import Jump
+import controller
 import sim
 import optimize
 import data
@@ -13,8 +13,8 @@ PI = np.pi
 
 plt.close('all')
 
-l = [0.02755781369022288, 0.05150937952530346, 0.020932806784473665]
-k = [144.25414552976736, 968.9203208767151]
+l = [0.020363460236168952, 0.05101704858511963, 0.02861949117871143]
+k = [999.216631856817, 911.5225980715397]
 
 # l = [0.03,0.04,0.03]
 # k = [500, 500]
@@ -36,7 +36,7 @@ plt.title('Retract pose')
 # plt.title('Length IK')
 
 model = Model(leg,dof='y')
-controller = Jump(model)
+controller = controller.MultiJump(model)
 sim_data = sim.run(model, controller=controller, tfinal=optimize.tf, step=optimize.step, vis=True, capture=0)
 file_name = 'data/test.csv'
 data.write(
@@ -45,7 +45,7 @@ data.write(
     [l]+[k]+list(sim_data.values())
 )
 # sim_data = data.read(file_name)
-print('Height',optimize.height(sim_data))
+print('Height',optimize.average_height(sim_data))
 
 plt.figure()
 plt.subplot(211)
@@ -62,5 +62,14 @@ plt.title('Leg length')
 plt.subplot(212)
 plt.plot(sim_data['time'], sim_data['leg_angle'])
 plt.title('Leg angle')
+
+plt.figure()
+plt.plot(sim_data['time'], sim_data['contact_f'])
+plt.title('Contact force')
+
+plt.figure()
+plt.plot(sim_data['time'], sim_data['spring1_x'])
+plt.plot(sim_data['time'], sim_data['spring2_x'])
+plt.title('Spring deformation')
 
 plt.show()

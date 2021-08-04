@@ -3,19 +3,19 @@ from scipy.optimize import differential_evolution, LinearConstraint
 
 from model import Model
 from leg import Leg
-from controller import Jump
+import controller
 import sim
 import data
 
-tf = 2
+tf = 4
 step = 2e-4
 
 l = 0.1
-l_min = 0.01
+l_min = 0.02
 l_max = l
 
 k_min = 100
-k_max = 500
+k_max = 1000
 
 lb = [0.05,0.08]
 
@@ -32,9 +32,9 @@ def obj(x):
         return 10
 
     model = Model(leg,dof='y')
-    controller = Jump(model)
-    sim_data = sim.run(model, controller=controller, tfinal=tf, step=step, vis=False)
-    h = height(sim_data)
+    c = controller.MultiJump(model)
+    sim_data = sim.run(model, controller=c, tfinal=tf, step=step, vis=False)
+    h = average_height(sim_data)
 
     return -h
 
@@ -43,7 +43,7 @@ def height(sim_data):
     for i in range(len(sim_data['body_y'])-1):
         t = sim_data['time'][i]
         h = sim_data['body_y'][i]
-        if t < Jump.t_settle: continue
+        if t < controller.Jump.t_settle: continue
 
         if h > h_max:
             h_max = h
@@ -54,7 +54,7 @@ def average_height(sim_data):
     hs = []
     for i in range(len(sim_data['body_dy'])-1):
         t = sim_data['time'][i]
-        if t < Jump.t_settle: continue
+        if t < controller.MultiJump.t_settle: continue
 
         dy = sim_data['body_dy'][i]
         dy_next = sim_data['body_dy'][i+1]
@@ -97,8 +97,8 @@ def run():
     k_opt = toK(res.x)
     leg = Leg(l_opt,k_opt,lb)
     model = Model(leg,dof='y')
-    controller = Jump(model)
-    sim_data = sim.run(model, controller=controller, tfinal=tf, step=step, vis=True)
+    c = controller.MultiJump(model)
+    sim_data = sim.run(model, controller=c, tfinal=tf, step=step, vis=True)
 
     data.write(
         'data/opt_height.csv',
@@ -107,7 +107,7 @@ def run():
     )
 
     leg.plot(leg.q1, leg.q2)
-    print('Height',height(sim_data))
+    print('Height',average_height(sim_data))
 
 if __name__ == '__main__':
     run()

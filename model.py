@@ -33,7 +33,7 @@ class Model:
         chrono.ChCollisionModel.SetDefaultSuggestedMargin(0.001)
 
         contact_mat = chrono.ChMaterialSurfaceNSC()
-        contact_mat.SetFriction(1.0)
+        contact_mat.SetFriction(0.8)
         contact_mat.SetRestitution(0.3)
 
         # Bodies
