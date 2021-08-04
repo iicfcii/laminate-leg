@@ -11,7 +11,7 @@ tf = 2
 step = 2e-4
 
 l = 0.1
-l_min = 0.02
+l_min = 0.01
 l_max = l
 
 k_min = 100
@@ -31,16 +31,22 @@ def obj(x):
     except AssertionError:
         return 10
 
-    model = Model(leg,body_constraint='y')
+    model = Model(leg,dof='y')
     controller = Jump(model)
     sim_data = sim.run(model, controller=controller, tfinal=tf, step=step, vis=False)
-    h = average_height(sim_data)
+    h = height(sim_data)
 
     return -h
 
 def height(sim_data):
-    h_max = np.max(sim_data['body_y'])
-    if np.abs(h_max) < 1e-4 or np.isnan(h_max): h_max = 0
+    h_max = 0
+    for i in range(len(sim_data['body_y'])-1):
+        t = sim_data['time'][i]
+        h = sim_data['body_y'][i]
+        if t < Jump.t_settle: continue
+
+        if h > h_max:
+            h_max = h
 
     return h_max
 
@@ -90,7 +96,7 @@ def run():
     l_opt = toL(res.x)
     k_opt = toK(res.x)
     leg = Leg(l_opt,k_opt,lb)
-    model = Model(leg,body_constraint='y')
+    model = Model(leg,dof='y')
     controller = Jump(model)
     sim_data = sim.run(model, controller=controller, tfinal=tf, step=step, vis=True)
 
@@ -100,9 +106,8 @@ def run():
         [l_opt]+[k_opt]+list(sim_data.values())
     )
 
-    plt.close('all')
     leg.plot(leg.q1, leg.q2)
-    print('Height',average_height(sim_data))
+    print('Height',height(sim_data))
 
 if __name__ == '__main__':
     run()

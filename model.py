@@ -18,7 +18,7 @@ class RotSpringTorque(chrono.TorqueFunctor):
         return torque
 
 class Model:
-    def __init__(self, leg, body_constraint='xyz'):
+    def __init__(self, leg, dof='xyz'):
         rho = leg.density()
         gear_m = 0.001
         gear_b = 0.00767821
@@ -39,7 +39,7 @@ class Model:
         # Bodies
         tg = 0.02
         ground = chrono.ChBodyEasyBox(1.0,tg,0.1,rho,True,True,contact_mat)
-        ground.SetPos(chrono.ChVectorD(0.0,-tg/2,0))
+        ground.SetPos(chrono.ChVectorD(0,-tg/2,0))
         ground.SetRot(chrono.Q_from_AngZ(0))
         ground.SetBodyFixed(True)
         ground.GetCollisionModel().SetFamily(0)
@@ -93,15 +93,15 @@ class Model:
         self.system.Add(self.link4)
 
         # Joints
-        if body_constraint == 'y':
+        if dof == 'y':
             joint_ground_body = chrono.ChLinkMateGeneric(True, False, True, True, True, True)
-        elif body_constraint == 'z':
+        elif dof == 'z':
             joint_ground_body = chrono.ChLinkMateGeneric(True, True, True, True, True, False)
-        elif body_constraint == 'xy':
+        elif dof == 'xy':
             joint_ground_body = chrono.ChLinkMateGeneric(False, False, True, True, True, True)
-        elif body_constraint == 'yz':
+        elif dof == 'yz':
             joint_ground_body = chrono.ChLinkMateGeneric(True, False, True, True, True, False)
-        elif body_constraint == 'xyz':
+        elif dof == 'xyz':
             joint_ground_body = chrono.ChLinkMateGeneric(False, False, True, True, True, False)
         else:
             joint_ground_body = chrono.ChLinkMateGeneric(True, True, True, True, True, True)
