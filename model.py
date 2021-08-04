@@ -20,6 +20,9 @@ class RotSpringTorque(chrono.TorqueFunctor):
 class Model:
     def __init__(self, leg, body_constraint='xyz'):
         rho = leg.density()
+        gear_m = 0.001
+        gear_b = 0.00767821
+        gear_I = 0.00068408
 
         self.leg = leg
 
@@ -105,14 +108,6 @@ class Model:
         joint_ground_body.Initialize(ground, self.body, chrono.ChFrameD(self.body.GetPos()))
         self.system.Add(joint_ground_body)
 
-        joint_body_link1 = chrono.ChLinkMateGeneric(True,True,True,True,True,False)
-        joint_body_link1.Initialize(self.body,self.link1,chrono.ChFrameD(chrono.ChVectorD(*leg.link_pts(1)[:,0])))
-        self.system.Add(joint_body_link1)
-
-        joint_link1_crank1 = chrono.ChLinkMateGeneric(True,True,True,True,True,False)
-        joint_link1_crank1.Initialize(self.link1,crank1,chrono.ChFrameD(chrono.ChVectorD(*leg.link_pts(4)[:,0])))
-        self.system.Add(joint_link1_crank1)
-
         joint_link1_link2 = chrono.ChLinkMateGeneric(True,True,True,True,True,False)
         joint_link1_link2.Initialize(self.link1,link2,chrono.ChFrameD(chrono.ChVectorD(*leg.link_pts(1)[:,1])))
         self.system.Add(joint_link1_link2)
@@ -125,12 +120,47 @@ class Model:
         joint_link3_link4.Initialize(link3,self.link4,chrono.ChFrameD(chrono.ChVectorD(*leg.link_pts(3)[:,1])))
         self.system.Add(joint_link3_link4)
 
+        # Gearbox joints
+        gear1 = chrono.ChBody()
+        gear1.SetPos(chrono.ChVectorD(*leg.link_pts(1)[:,0]))
+        gear1.SetRot(chrono.QUNIT)
+        gear1.SetMass(gear_m)
+        gear1.SetInertiaXX(chrono.ChVectorD(gear_I,gear_I,gear_I))
+        self.system.Add(gear1)
+
+        joint_gear1_link1 = chrono.ChLinkMateGeneric(True,True,True,True,True,True)
+        joint_gear1_link1.Initialize(self.link1,gear1,chrono.ChFrameD(chrono.ChVectorD(*leg.link_pts(1)[:,0])))
+        self.system.Add(joint_gear1_link1)
+
+        damper_body_gear1 = chrono.ChLinkRotSpringCB()
+        damper_body_gear1.Initialize(gear1,self.body,chrono.ChCoordsysD(chrono.ChVectorD(*leg.link_pts(1)[:,0])))
+        self.damper_body_gear1_torque = RotSpringTorque(0,gear_b)
+        damper_body_gear1.RegisterTorqueFunctor(self.damper_body_gear1_torque)
+        self.system.AddLink(damper_body_gear1)
+
+        gear2 = chrono.ChBody()
+        gear2.SetPos(chrono.ChVectorD(*leg.link_pts(1)[:,0]))
+        gear2.SetRot(chrono.QUNIT)
+        gear2.SetMass(gear_m)
+        gear2.SetInertiaXX(chrono.ChVectorD(gear_I,gear_I,gear_I))
+        self.system.Add(gear2)
+
+        joint_gear2_crank1 = chrono.ChLinkMateGeneric(True,True,True,True,True,True)
+        joint_gear2_crank1.Initialize(crank1,gear2,chrono.ChFrameD(chrono.ChVectorD(*leg.link_pts(1)[:,0])))
+        self.system.Add(joint_gear2_crank1)
+
+        damper_body_gear2 = chrono.ChLinkRotSpringCB()
+        damper_body_gear2.Initialize(gear2,self.body,chrono.ChCoordsysD(chrono.ChVectorD(*leg.link_pts(1)[:,0])))
+        self.damper_body_gear2_torque = RotSpringTorque(0,gear_b)
+        damper_body_gear2.RegisterTorqueFunctor(self.damper_body_gear2_torque)
+        self.system.AddLink(damper_body_gear2)
+
         # Single joint springs
-        spring_body_link1 = chrono.ChLinkRotSpringCB()
-        spring_body_link1.Initialize(self.link1,self.body,chrono.ChCoordsysD(chrono.ChVectorD(*leg.link_pts(1)[:,0])))
-        self.spring_body_link1_torque = RotSpringTorque(*leg.spring_kb(0))
-        spring_body_link1.RegisterTorqueFunctor(self.spring_body_link1_torque)
-        self.system.AddLink(spring_body_link1)
+        spring_link1_crank1 = chrono.ChLinkRotSpringCB()
+        spring_link1_crank1.Initialize(link2,self.link1,chrono.ChCoordsysD(chrono.ChVectorD(*leg.link_pts(1)[:,1])))
+        self.spring_link1_crank1_torque = RotSpringTorque(*leg.spring_kb(0))
+        spring_link1_crank1.RegisterTorqueFunctor(self.spring_link1_crank1_torque)
+        self.system.AddLink(spring_link1_crank1)
 
         spring_link1_link2 = chrono.ChLinkRotSpringCB()
         spring_link1_link2.Initialize(link2,self.link1,chrono.ChCoordsysD(chrono.ChVectorD(*leg.link_pts(1)[:,1])))
@@ -154,7 +184,6 @@ class Model:
             True
         )
         self.system.AddLink(self.spring_crank1_link2)
-
 
         self.spring_crank2_link3 = chrono.ChLinkTSDA()
         self.spring_crank2_link3.SetSpringCoefficient(leg.spring_kb(4)[0])

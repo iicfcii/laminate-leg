@@ -3,10 +3,11 @@ from scipy.optimize import differential_evolution, LinearConstraint
 
 from model import Model
 from leg import Leg
-from controller import Jump, SimpleJump
+from controller import Jump
 import sim
+import data
 
-tf = 5
+tf = 2
 step = 2e-4
 
 l = 0.1
@@ -31,7 +32,7 @@ def obj(x):
         return 10
 
     model = Model(leg,body_constraint='y')
-    controller = SimpleJump(model)
+    controller = Jump(model)
     sim_data = sim.run(model, controller=controller, tfinal=tf, step=step, vis=False)
     h = average_height(sim_data)
 
@@ -82,5 +83,26 @@ def run():
         polish=False,
         disp=True
     )
+    print('Result', res.message)
+    print('Config', res.x)
+    print('Cost', res.fun)
 
-    return res
+    l_opt = toL(res.x)
+    k_opt = toK(res.x)
+    leg = Leg(l_opt,k_opt,lb)
+    model = Model(leg,body_constraint='y')
+    controller = Jump(model)
+    sim_data = sim.run(model, controller=controller, tfinal=tf, step=step, vis=True)
+
+    data.write(
+        'data/opt_height.csv',
+        ['l']+['k']+list(sim_data.keys()),
+        [l_opt]+[k_opt]+list(sim_data.values())
+    )
+
+    plt.close('all')
+    leg.plot(leg.q1, leg.q2)
+    print('Height',average_height(sim_data))
+
+if __name__ == '__main__':
+    run()
