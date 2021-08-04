@@ -15,7 +15,7 @@ class Jump():
 
         self.q1_i, self.q2_i = self.model.leg.est_ik(-PI/2,self.model.leg.lmax)
 
-        self.lr = 0.05
+        self.lr = 0.04
         self.le = 0.08
         self.lt = -PI/2
 
@@ -60,7 +60,7 @@ class MultiJump():
 
         self.q1_i, self.q2_i = self.model.leg.est_ik(-PI/2,self.model.leg.lmax)
 
-        self.lr = 0.05
+        self.lr = 0.04
         self.le = 0.08
         self.lt = -PI/2
 
