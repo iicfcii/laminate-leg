@@ -1,3 +1,6 @@
+import sys, os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__),'../')))
+
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -47,9 +50,9 @@ leg = Leg(l,k,optimize.lb)
 # plt.title('Length IK')
 
 model = Model(leg,dof='y')
-controller = controller.BlindMultiJump(model)
-sim_data = sim.run(model, controller=controller, tfinal=optimize.tf, step=optimize.step, vis=True, capture=0)
-file_name = 'data/sjr_343_p2.csv'
+controller = controller.BlindMultiJump(model,0.22)
+sim_data = sim.run(model, controller=controller, tfinal=5, step=optimize.step, vis=True, capture=0)
+file_name = 'data/blind_multi_jump_sim_343_p2.csv'
 data.write(
     file_name,
     ['l']+['k']+list(sim_data.keys()),

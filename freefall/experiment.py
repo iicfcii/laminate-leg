@@ -56,7 +56,7 @@ while len(exp_data['t']) == 0 or exp_data['t'][-1] < 1:
 portH.closePort()
 
 # Save data
-file_name = './freefall/exp_715.csv'
+file_name = 'data/freefall_715.csv'
 data.write(
     file_name,
     list(exp_data.keys()),

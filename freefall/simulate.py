@@ -53,7 +53,7 @@ def read(file_name):
     return exp_data
 
 def run(b,I,m):
-    d = read('./freefall/exp_{:d}.csv'.format(int(m*1000)))
+    d = read('data/freefall_{:d}.csv'.format(int(m*1000)))
 
     system = chrono.ChSystemNSC()
     system.Set_G_acc(chrono.ChVectorD(0,0,-9.81)) # No gravity

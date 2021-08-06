@@ -117,7 +117,7 @@ class MultiJump():
 class BlindMultiJump():
     t_settle = 1.0
 
-    def __init__(self, model):
+    def __init__(self, model, period):
         self.model = model
 
         self.q1_i, self.q2_i = self.model.leg.est_ik(-PI/2,self.model.leg.lmax)
@@ -125,7 +125,7 @@ class BlindMultiJump():
         self.lr = 0.04
         self.le = 0.08
         self.lt = -PI/2
-        self.p = 0.2
+        self.p = period
 
         self.state = 'falling'
         self.t_pre = None

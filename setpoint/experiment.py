@@ -58,7 +58,7 @@ while len(exp_data['t']) == 0 or exp_data['t'][-1] < 1:
 portH.closePort()
 
 # Save data
-file_name = './setpoint/exp_{:d}.csv'.format(deg)
+file_name = 'data/setpoint_{:d}.csv'.format(deg)
 data.write(
     file_name,
     list(exp_data.keys()),

@@ -1,11 +1,14 @@
+import sys, os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__),'../')))
+
 import matplotlib.pyplot as plt
 import numpy as np
 
 import data
 
-t_range = 2.5
+t_range = 3
 
-track_data = data.read('blind_multi_jump/jr_343_p2.csv')
+track_data = data.read('data/blind_multi_jump_343_p2.csv')
 t = track_data['t']
 y = track_data['y']
 
@@ -13,7 +16,7 @@ y_init = np.average(y[:50])
 t_init_i = 0
 for i in range(len(y)):
     avg_y = np.average(y[i:i+10])
-    if avg_y-y_init > 0.0005:
+    if avg_y-y_init > 0.001:
         t_init_i = i
         break
 
@@ -32,7 +35,7 @@ y = y[y != np.array(None)]
 t -= t[0]
 y -= y[0]
 
-sim_data = data.read('blind_multi_jump/sjr_343_p2.csv')
+sim_data = data.read('data/blind_multi_jump_sim_343_p2.csv')
 ts = sim_data['time']
 ys = sim_data['body_y']
 

@@ -28,7 +28,7 @@ tfinal=1
 step=2e-4
 
 def run(b,I,deg):
-    d = data.read('./setpoint/exp_{:d}.csv'.format(deg))
+    d = data.read('data/setpoint_{:d}.csv'.format(deg))
 
     system = chrono.ChSystemNSC()
     system.Set_G_acc(chrono.ChVectorD(0,0,-9.81)) # No gravity
