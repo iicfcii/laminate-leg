@@ -127,12 +127,12 @@ class Leg:
 
         # Plot
         if new: plt.figure()
+        plt.plot(ps[5][0,:],ps[5][1,:],'-ok')
         plt.plot(ps[0][0,:],ps[0][1,:],'-ok')
-        plt.plot(ps[1][0,:],ps[1][1,:],'-ok')
+        plt.plot(ps[1][0,:],ps[1][1,:],'-or')
         plt.plot(ps[2][0,:],ps[2][1,:],'-ok')
         plt.plot(ps[3][0,:],ps[3][1,:],'-ok')
         plt.plot(ps[4][0,:],ps[4][1,:],'-or')
-        plt.plot(ps[5][0,:],ps[5][1,:],'-or')
 
         ps_s1 = np.concatenate([ps[4][:,1].reshape((-1,1)),ps[2][:,0].reshape((-1,1))],axis=1)
         plt.plot(ps_s1[0,:],ps_s1[1,:],'--og')
