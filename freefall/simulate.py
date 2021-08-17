@@ -19,7 +19,7 @@ class RotSpringTorque(chrono.TorqueFunctor):
         torque = -self.k*angle-self.b*vel
         return torque
 
-chrono.SetChronoDataPath('C:/Users/cfc34/miniconda3/pkgs/pychrono-6.0.0-py37_223/Library/data/')
+chrono.SetChronoDataPath('./chrono_data/')
 PI = np.pi
 DEG_2_RAD = np.pi/180
 SREVO_OFFSET = -(150+90)*DEG_2_RAD

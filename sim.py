@@ -5,7 +5,7 @@ import numpy as np
 from leg import Leg
 from controller import Jump
 
-chrono.SetChronoDataPath('C:/Users/cfc34/miniconda3/pkgs/pychrono-6.0.0-py37_223/Library/data/')
+chrono.SetChronoDataPath('./chrono_data/')
 PI = np.pi
 
 class Recorder:

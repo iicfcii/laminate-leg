@@ -1,0 +1,10 @@
+name: leg
+dependencies:
+  - python=3.8
+  - projectchrono/label/develop::pychrono
+  - pip
+  - pip:
+    - numpy
+    - scipy
+    - matplotlib
+    - dynamixel-sdk
