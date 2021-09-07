@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import differential_evolution
 
-import leg.fourbar as fourbar
+import fourbar
 
 DEG_2_RAD = np.pi/180
 PI = np.pi

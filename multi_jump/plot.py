@@ -4,7 +4,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__),'../')))
 import matplotlib.pyplot as plt
 import numpy as np
 
-import leg.data as data
+import data
 
 sim_data_files = [
     'data/multi_jump_sim_252.csv',

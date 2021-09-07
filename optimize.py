@@ -1,7 +1,11 @@
 import numpy as np
 from scipy.optimize import differential_evolution, LinearConstraint
 
-import leg.controller as controller
+from model import Model
+from leg import Leg
+import controller
+import sim
+import data
 
 tf = 4
 step = 2e-4
@@ -104,3 +108,6 @@ def run():
 
     leg.plot(leg.q1, leg.q2)
     print('Height',average_height(sim_data))
+
+if __name__ == '__main__':
+    run()

@@ -1,8 +1,8 @@
 import pychrono as chrono
 import numpy as np
 
-from leg.leg import Leg
-import leg.controller as controller
+import motor
+from leg import Leg
 
 PI = np.pi
 
