@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import differential_evolution
 
-import data
+import leg.data as data
 
 class RotSpringTorque(chrono.TorqueFunctor):
     def __init__(self, k, b):

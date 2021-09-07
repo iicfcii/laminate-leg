@@ -4,9 +4,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__),'../')))
 import matplotlib.pyplot as plt
 import numpy as np
 
-import data
-
-
+import leg.data as data
 
 exp_data_files = [
     'data/blind_multi_jump_343_p20.csv',

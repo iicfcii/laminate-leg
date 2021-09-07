@@ -6,7 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from dynamixel_sdk import *
 
-import data
+import leg.data as data
 
 DEG_2_RAD = np.pi/180
 

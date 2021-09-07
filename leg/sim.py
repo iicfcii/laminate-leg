@@ -2,8 +2,8 @@ import pychrono as chrono
 import pychrono.irrlicht as chronoirr
 import numpy as np
 
-from leg import Leg
-from controller import Jump
+from leg.leg import Leg
+from leg.controller import Jump
 
 chrono.SetChronoDataPath('./chrono_data/')
 PI = np.pi

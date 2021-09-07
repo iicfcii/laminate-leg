@@ -4,12 +4,12 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__),'../')))
 import matplotlib.pyplot as plt
 import numpy as np
 
-from model import Model
-from leg import Leg
-import controller
-import sim
-import optimize
-import data
+from leg.model import Model
+from leg.leg import Leg
+import leg.controller as controller
+import leg.sim as sim
+import leg.optimize as optimize
+import leg.data as data
 
 DEG_2_RAD = np.pi/180
 PI = np.pi

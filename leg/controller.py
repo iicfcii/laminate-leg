@@ -1,7 +1,6 @@
 import numpy as np
 
-import motor
-from leg import Leg
+import leg.motor as motor
 
 PI = np.pi
 DEG_2_RAD = PI/180
