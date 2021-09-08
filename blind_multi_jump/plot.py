@@ -6,8 +6,6 @@ import numpy as np
 
 import data
 
-
-
 exp_data_files = [
     'data/blind_multi_jump_343_p20.csv',
     'data/blind_multi_jump_252_p23.csv'
