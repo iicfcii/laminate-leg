@@ -12,7 +12,7 @@ def write(filename, keys, values):
         for vs in itertools.zip_longest(*values):
             writer.writerow(vs)
 
-def read(filename):
+def read(filename, float=True):
     keys = []
     values = []
     with open(filename, newline='') as csvfile:
@@ -29,19 +29,21 @@ def read(filename):
                         if v == '':
                             values[j].append(None)
                         else:
-                            values[j].append(float(v))
-
+                            if float:
+                                values[j].append(float(v))
+                            else:
+                                values[j].append(v)
     data = {}
     for k,v in zip(keys,values):
         data[k] = v
 
     return data
 
-def detect_change(d,window=10,threshold=0.05):
+def detect_change(d,window=100,threshold=2):
     d_init = np.average(d[0:window])
-    for i in range(len(d)):
+    for i in range(0,len(d),window):
         d_init_c = np.average(d[i:i+window])
         if np.abs(d_init_c-d_init)/np.abs(d_init) > threshold:
             break
-
+        d_init = d_init_c
     return i

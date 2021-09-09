@@ -9,7 +9,7 @@ from dynamixel_sdk import *
 DEG_2_RAD = np.pi/180
 
 DEG_PER_COUNT = 0.088
-POSITION_START = 2530
+POSITION_START = 2560
 POSITION_RANGE = 300 # 0.088 deg/pulse
 POSITION_STEP = 10
 assert POSITION_RANGE%POSITION_STEP == 0
@@ -17,9 +17,12 @@ POSITIONS = np.concatenate((
     np.arange(POSITION_START,POSITION_START+POSITION_RANGE/2,POSITION_STEP),
     np.arange(POSITION_START+POSITION_RANGE/2,POSITION_START-POSITION_RANGE/2,-POSITION_STEP),
     np.arange(POSITION_START-POSITION_RANGE/2,POSITION_START,POSITION_STEP),
-    [POSITION_START]
 ))
-# print('Positions', POSITIONS)
+# POSITIONS = np.tile(POSITIONS,(5))
+POSITIONS = np.concatenate((
+    POSITIONS,
+    [POSITION_START],
+))
 
 ADDR_TORQUE_ENABLE = 64
 LEN_TORQUE_ENABLE = 1
@@ -49,7 +52,10 @@ if __name__ == '__main__':
     groupSR.txRxPacket()
     current_pos = groupSR.getData(SERVO_ID,ADDR_PRESENT_POSITION,LEN_PRESENT_POSITION)
 
-    assert current_pos > POSITION_START-100 and current_pos < POSITION_START+100, 'Position should be between 2500 and 2700 but is ' + str(current_pos)
+
+    p_start = POSITION_START-POSITION_RANGE/2
+    p_end = POSITION_START+POSITION_RANGE/2
+    assert current_pos > p_start and current_pos < p_end, 'Position should be between {} and {} but is {}'.format(p_start,p_end,current_pos)
 
     # Enable torque and move to start position
     groupSW = GroupSyncWrite(portH, packetH, ADDR_TORQUE_ENABLE, LEN_TORQUE_ENABLE)
@@ -60,6 +66,7 @@ if __name__ == '__main__':
     groupSW.addParam(SERVO_ID,int(POSITION_START).to_bytes(LEN_GOAL_POSITION, 'little'))
     groupSW.txPacket()
 
+    print('Homed')
     time.sleep(3)
 
     for p in POSITIONS:

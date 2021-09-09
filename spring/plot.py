@@ -7,27 +7,37 @@ import numpy as np
 import data
 import experiment
 
-SAMPLES_PER_STEP = 7000
+SAMPLES_PER_STEP = 7000*1.003
 COUNTS_PER_UNIT = 1000000
 
-force_data = data.read('data\spring_300.csv')
-tz = np.array(force_data['Tz'])/COUNTS_PER_UNIT
-tz_init_i = data.detect_change(tz)
-tz_init_i -= SAMPLES_PER_STEP/2
+plt.figure()
+for w in ['4','8','12']:
+# for w in ['8_5']:
+    force_data = data.read('data\spring_{}.csv'.format(w),float=False)
+    tz = np.float_(force_data[' Tz'])/COUNTS_PER_UNIT
+    tz_init_i = data.detect_change(tz)
+    tz_init_i -= SAMPLES_PER_STEP/2
 
-tz_avg_i = []
-theta = []
-tz_avg = []
-for i, p in enumerate(experiment.POSITIONS):
-    center_i = int(tz_init_i+i*SAMPLES_PER_STEP)
-    start_i = int(center_i-SAMPLES_PER_STEP/4)
-    end_i = int(center_i+SAMPLES_PER_STEP/4)
-    tz_avg.append(np.average(tz[start_i:end_i]))
+    tz_avg_i = []
+    theta = []
+    tz_avg = []
+    for i, p in enumerate(experiment.POSITIONS):
+        center_i = int(tz_init_i+i*SAMPLES_PER_STEP)
+        start_i = int(center_i-SAMPLES_PER_STEP/4)
+        end_i = int(center_i+SAMPLES_PER_STEP/4)
+        tz_avg.append(np.average(tz[start_i:end_i]))
 
-    tz_avg_i.append(center_i)
-    theta.append((p-experiment.POSITION_START)*experiment.DEG_PER_COUNT*experiment.DEG_2_RAD)
+        tz_avg_i.append(center_i)
+        theta.append((p-experiment.POSITION_START)*experiment.DEG_PER_COUNT*experiment.DEG_2_RAD)
 
-plt.plot(theta,tz_avg)
+    # plt.figure()
+    # plt.plot(tz)
+    # plt.plot(tz_avg_i,tz_avg,'o')
+    # plt.show()
+
+    plt.plot(theta,tz_avg,label=w)
+
 plt.xlabel('Angle[deg]')
 plt.ylabel('Torque[Nm]')
+plt.legend(title='Beam width[mm]')
 plt.show()
