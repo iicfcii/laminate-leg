@@ -3,10 +3,11 @@ from scipy.optimize import differential_evolution, LinearConstraint
 
 from model import Model
 from leg import Leg
-from controller import Jump
+import controller
 import sim
+import data
 
-tf = 10
+tf = 4
 step = 2e-4
 
 l = 0.1
@@ -14,7 +15,7 @@ l_min = 0.01
 l_max = l
 
 k_min = 100
-k_max = 3000
+k_max = 4000
 
 lb = [0.04,0.08]
 
@@ -30,16 +31,22 @@ def obj(x):
     except AssertionError:
         return 10
 
-    model = Model(leg)
-    controller = Jump(model)
-    sim_data = sim.run(model, controller=controller, tfinal=tf, step=step, vis=False)
+    model = Model(leg,dof='y')
+    c = controller.MultiJump(model)
+    sim_data = sim.run(model, controller=c, tfinal=tf, step=step, vis=False)
     h = average_height(sim_data)
 
     return -h
 
 def height(sim_data):
-    h_max = np.max(sim_data['body_y'])
-    if np.abs(h_max) < 1e-4 or np.isnan(h_max): h_max = 0
+    h_max = 0
+    for i in range(len(sim_data['body_y'])-1):
+        t = sim_data['time'][i]
+        h = sim_data['body_y'][i]
+        if t < controller.Jump.t_settle: continue
+
+        if h > h_max:
+            h_max = h
 
     return h_max
 
@@ -47,7 +54,7 @@ def average_height(sim_data):
     hs = []
     for i in range(len(sim_data['body_dy'])-1):
         t = sim_data['time'][i]
-        if t < Jump.t_settle: continue
+        if t < controller.MultiJump.t_settle: continue
 
         dy = sim_data['body_dy'][i]
         dy_next = sim_data['body_dy'][i+1]
@@ -82,5 +89,25 @@ def run():
         polish=False,
         disp=True
     )
+    print('Result', res.message)
+    print('Config', res.x)
+    print('Cost', res.fun)
 
-    return res
+    l_opt = toL(res.x)
+    k_opt = toK(res.x)
+    leg = Leg(l_opt,k_opt,lb)
+    model = Model(leg,dof='y')
+    c = controller.MultiJump(model)
+    sim_data = sim.run(model, controller=c, tfinal=tf, step=step, vis=True)
+
+    data.write(
+        'data/opt_height.csv',
+        ['l']+['k']+list(sim_data.keys()),
+        [l_opt]+[k_opt]+list(sim_data.values())
+    )
+
+    leg.plot(leg.q1, leg.q2)
+    print('Height',average_height(sim_data))
+
+if __name__ == '__main__':
+    run()

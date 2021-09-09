@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.optimize import bisect, differential_evolution
+from scipy.optimize import differential_evolution
 
 import fourbar
 
@@ -14,8 +14,8 @@ class Leg:
     h = 0.1
 
     l0 = 0.05 # Body dimension
-    l0f = l0/2
-    w0 = 0.02
+    l0f = 0.025
+    w0 = 0.05
     t0 = 0.02
 
     t_ref = -PI/2 # Refence virtual leg angle
@@ -127,12 +127,12 @@ class Leg:
 
         # Plot
         if new: plt.figure()
+        plt.plot(ps[5][0,:],ps[5][1,:],'-ok')
         plt.plot(ps[0][0,:],ps[0][1,:],'-ok')
-        plt.plot(ps[1][0,:],ps[1][1,:],'-ok')
+        plt.plot(ps[1][0,:],ps[1][1,:],'-or')
         plt.plot(ps[2][0,:],ps[2][1,:],'-ok')
         plt.plot(ps[3][0,:],ps[3][1,:],'-ok')
         plt.plot(ps[4][0,:],ps[4][1,:],'-or')
-        plt.plot(ps[5][0,:],ps[5][1,:],'-or')
 
         ps_s1 = np.concatenate([ps[4][:,1].reshape((-1,1)),ps[2][:,0].reshape((-1,1))],axis=1)
         plt.plot(ps_s1[0,:],ps_s1[1,:],'--og')
@@ -200,7 +200,7 @@ class Leg:
 
     def spring_kb(self, n):
         kbs = [
-            [0.000, 0.0020],
+            [0.020, 0.0005],
             [0.020, 0.0005],
             [0.020, 0.0005],
             [self.k4, 0.1],
