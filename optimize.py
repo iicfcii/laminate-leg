@@ -14,8 +14,8 @@ l = 0.1
 l_min = 0.01
 l_max = l
 
-k_min = 100
-k_max = 4000
+k_min = 0.01
+k_max = 1
 
 lb = [0.04,0.08]
 

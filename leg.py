@@ -10,7 +10,7 @@ np.warnings.filterwarnings('ignore', category=np.VisibleDeprecationWarning)
 
 class Leg:
     w = 0.02 # Link dimension
-    t = 0.003
+    t = 0.001
     h = 0.1
 
     l0 = 0.05 # Body dimension
@@ -28,13 +28,13 @@ class Leg:
 
         # Double joint spring 1 links
         self.l4 = 0.02
-        self.l5 = self.l1 # 0.04
-        self.l6 = 0.015
+        self.l5 = self.l1
+        self.l6 = self.l4
 
         # Double joint spring 2 links
         self.l7 = 0.02
-        self.l8 = self.l2 # 0.04
-        self.l9 = 0.015
+        self.l8 = self.l2
+        self.l9 = self.l7
 
         self.k4 = ks[0]
         self.k5 = ks[1]
@@ -116,8 +116,10 @@ class Leg:
             np.concatenate([p1,p2],axis=1)[0:3,:],
             np.concatenate([ps1B,p3],axis=1)[0:3,:],
             np.concatenate([ps2B,pt],axis=1)[0:3,:],
-            np.concatenate([p1,ps1A],axis=1)[0:3,:],
-            np.concatenate([p2,ps2A],axis=1)[0:3,:],
+            np.concatenate([p1,ps1A],axis=1)[0:3,:], # Crank1
+            np.concatenate([p2,ps2A],axis=1)[0:3,:], # Crank2
+            np.concatenate([ps1A,ps1B],axis=1)[0:3,:], # Coupler1
+            np.concatenate([ps2A,ps2B],axis=1)[0:3,:], # Coupler2
         ]
 
         return ps
@@ -203,8 +205,8 @@ class Leg:
             [0.020, 0.0005],
             [0.020, 0.0005],
             [0.020, 0.0005],
-            [self.k4, 0.1],
-            [self.k5, 0.1]
+            [self.k4, 0.0005],
+            [self.k5, 0.0005]
         ]
         return kbs[n]
 
@@ -216,6 +218,8 @@ class Leg:
             [self.l3+self.l9,Leg.t,Leg.w],
             [self.l4,Leg.t,Leg.w], # Crank1
             [self.l7,Leg.t,Leg.w], # Crank2
+            [self.l5,Leg.t,Leg.w], # Coupler1
+            [self.l8,Leg.t,Leg.w], # Coupler2
         ]
         return ds[n]
 

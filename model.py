@@ -27,7 +27,7 @@ class Model:
         self.leg = leg
 
         self.system = chrono.ChSystemNSC()
-        self.system.Set_G_acc(chrono.ChVectorD(0,-9.81*1,0)) # No gravity
+        self.system.Set_G_acc(chrono.ChVectorD(0,-9.81*1,0))
 
         chrono.ChCollisionModel.SetDefaultSuggestedEnvelope(0.001)
         chrono.ChCollisionModel.SetDefaultSuggestedMargin(0.001)
@@ -71,6 +71,20 @@ class Model:
         crank1.GetCollisionModel().SetFamilyMaskNoCollisionWithFamily(1)
         self.system.Add(crank1)
 
+        crank1p = chrono.ChBodyEasyBox(*leg.link_dim(4),rho,True,True,contact_mat)
+        crank1p.SetPos(chrono.ChVectorD(*Leg.link_center(leg.link_pts(4))))
+        crank1p.SetRot(chrono.Q_from_AngZ(Leg.link_rotz(leg.link_pts(4))))
+        crank1p.GetCollisionModel().SetFamily(1)
+        crank1p.GetCollisionModel().SetFamilyMaskNoCollisionWithFamily(1)
+        self.system.Add(crank1p)
+
+        coupler1 = chrono.ChBodyEasyBox(*leg.link_dim(6),rho,True,True,contact_mat)
+        coupler1.SetPos(chrono.ChVectorD(*Leg.link_center(leg.link_pts(6))))
+        coupler1.SetRot(chrono.Q_from_AngZ(Leg.link_rotz(leg.link_pts(6))))
+        coupler1.GetCollisionModel().SetFamily(1)
+        coupler1.GetCollisionModel().SetFamilyMaskNoCollisionWithFamily(1)
+        self.system.Add(coupler1)
+
         link2 = chrono.ChBodyEasyBox(*leg.link_dim(2),rho,True,True,contact_mat)
         link2.SetPos(chrono.ChVectorD(*Leg.link_center(leg.link_pts(2))))
         link2.SetRot(chrono.Q_from_AngZ(Leg.link_rotz(leg.link_pts(2))))
@@ -84,6 +98,20 @@ class Model:
         link3.GetCollisionModel().SetFamily(1)
         link3.GetCollisionModel().SetFamilyMaskNoCollisionWithFamily(1)
         self.system.Add(link3)
+
+        crank2p = chrono.ChBodyEasyBox(*leg.link_dim(5),rho,True,True,contact_mat)
+        crank2p.SetPos(chrono.ChVectorD(*Leg.link_center(leg.link_pts(5))))
+        crank2p.SetRot(chrono.Q_from_AngZ(Leg.link_rotz(leg.link_pts(5))))
+        crank2p.GetCollisionModel().SetFamily(1)
+        crank2p.GetCollisionModel().SetFamilyMaskNoCollisionWithFamily(1)
+        self.system.Add(crank2p)
+
+        coupler2 = chrono.ChBodyEasyBox(*leg.link_dim(7),rho,True,True,contact_mat)
+        coupler2.SetPos(chrono.ChVectorD(*Leg.link_center(leg.link_pts(7))))
+        coupler2.SetRot(chrono.Q_from_AngZ(Leg.link_rotz(leg.link_pts(7))))
+        coupler2.GetCollisionModel().SetFamily(1)
+        coupler2.GetCollisionModel().SetFamilyMaskNoCollisionWithFamily(1)
+        self.system.Add(coupler2)
 
         self.link4 = chrono.ChBodyEasySphere(0.005,rho,True,True,contact_mat)
         self.link4.SetPos(chrono.ChVectorD(*leg.link_pts(3)[:,1]))
@@ -119,6 +147,30 @@ class Model:
         joint_link3_link4 = chrono.ChLinkMateGeneric(True,True,True,True,True,True)
         joint_link3_link4.Initialize(link3,self.link4,chrono.ChFrameD(chrono.ChVectorD(*leg.link_pts(3)[:,1])))
         self.system.Add(joint_link3_link4)
+
+        joint_link1_crank1p = chrono.ChLinkMateGeneric(True,True,True,True,True,False)
+        joint_link1_crank1p.Initialize(self.link1,crank1p,chrono.ChFrameD(chrono.ChVectorD(*leg.link_pts(1)[:,0])))
+        self.system.Add(joint_link1_crank1p)
+
+        joint_crank1p_coupler1 = chrono.ChLinkMateGeneric(True,True,True,True,True,False)
+        joint_crank1p_coupler1.Initialize(crank1p,coupler1,chrono.ChFrameD(chrono.ChVectorD(*leg.link_pts(4)[:,1])))
+        self.system.Add(joint_crank1p_coupler1)
+
+        joint_link2_coupler1 = chrono.ChLinkMateGeneric(True,True,True,True,True,False)
+        joint_link2_coupler1.Initialize(link2,coupler1,chrono.ChFrameD(chrono.ChVectorD(*leg.link_pts(2)[:,0])))
+        self.system.Add(joint_link2_coupler1)
+
+        joint_link1_crank2p = chrono.ChLinkMateGeneric(True,True,True,True,True,False)
+        joint_link1_crank2p.Initialize(self.link1,crank2p,chrono.ChFrameD(chrono.ChVectorD(*leg.link_pts(1)[:,1])))
+        self.system.Add(joint_link1_crank2p)
+
+        joint_crank2p_coupler2 = chrono.ChLinkMateGeneric(True,True,True,True,True,False)
+        joint_crank2p_coupler2.Initialize(crank2p,coupler2,chrono.ChFrameD(chrono.ChVectorD(*leg.link_pts(5)[:,1])))
+        self.system.Add(joint_crank2p_coupler2)
+
+        joint_link3_coupler2 = chrono.ChLinkMateGeneric(True,True,True,True,True,False)
+        joint_link3_coupler2.Initialize(link3,coupler2,chrono.ChFrameD(chrono.ChVectorD(*leg.link_pts(3)[:,0])))
+        self.system.Add(joint_link3_coupler2)
 
         # Gearbox joints
         gear1 = chrono.ChBody()
@@ -175,25 +227,17 @@ class Model:
         self.system.AddLink(spring_link2_link3)
 
         # Double joint springs
-        self.spring_crank1_link2 = chrono.ChLinkTSDA()
-        self.spring_crank1_link2.SetSpringCoefficient(leg.spring_kb(3)[0])
-        self.spring_crank1_link2.SetDampingCoefficient(leg.spring_kb(3)[1])
-        self.spring_crank1_link2.Initialize(
-            crank1,link2,False,
-            chrono.ChVectorD(*leg.link_pts(4)[:,1]),chrono.ChVectorD(*leg.link_pts(2)[:,0]),
-            True
-        )
-        self.system.AddLink(self.spring_crank1_link2)
+        self.spring_crank1_crank1p = chrono.ChLinkRotSpringCB()
+        self.spring_crank1_crank1p.Initialize(crank1,crank1p,chrono.ChCoordsysD(chrono.ChVectorD(*leg.link_pts(1)[:,0])))
+        self.spring_crank1_crank1p_torque = RotSpringTorque(*leg.spring_kb(3))
+        self.spring_crank1_crank1p.RegisterTorqueFunctor(self.spring_crank1_crank1p_torque)
+        self.system.AddLink(self.spring_crank1_crank1p)
 
-        self.spring_crank2_link3 = chrono.ChLinkTSDA()
-        self.spring_crank2_link3.SetSpringCoefficient(leg.spring_kb(4)[0])
-        self.spring_crank2_link3.SetDampingCoefficient(leg.spring_kb(4)[1])
-        self.spring_crank2_link3.Initialize(
-            self.link1,link3,False,
-            chrono.ChVectorD(*leg.link_pts(5)[:,1]),chrono.ChVectorD(*leg.link_pts(3)[:,0]),
-            True
-        )
-        self.system.AddLink(self.spring_crank2_link3)
+        self.spring_link1_crank2p = chrono.ChLinkRotSpringCB()
+        self.spring_link1_crank2p.Initialize(self.link1,crank2p,chrono.ChCoordsysD(chrono.ChVectorD(*leg.link_pts(1)[:,1])))
+        self.spring_link1_crank2p_torque = RotSpringTorque(*leg.spring_kb(4))
+        self.spring_link1_crank2p.RegisterTorqueFunctor(self.spring_link1_crank2p_torque)
+        self.system.AddLink(self.spring_link1_crank2p)
 
         # Motors
         self.motor_hip = chrono.ChLinkMotorRotationTorque()
@@ -205,14 +249,9 @@ class Model:
         self.system.Add(self.motor_crank1)
 
         # Visuals
-        spring = chrono.ChPointPointSpring(0.001, 100, 20)
         color_red = chrono.ChColorAsset()
         color_red.SetColor(chrono.ChColor(1.0, 0, 0))
         color_green = chrono.ChColorAsset()
         color_green.SetColor(chrono.ChColor(0, 1.0, 0))
 
         crank1.AddAsset(color_red)
-        self.spring_crank1_link2.AddAsset(color_green)
-        self.spring_crank1_link2.AddAsset(spring)
-        self.spring_crank2_link3.AddAsset(color_green)
-        self.spring_crank2_link3.AddAsset(spring)
