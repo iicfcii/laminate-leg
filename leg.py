@@ -10,7 +10,7 @@ np.warnings.filterwarnings('ignore', category=np.VisibleDeprecationWarning)
 
 class Leg:
     w = 0.02 # Link dimension
-    t = 0.001
+    t = 0.002
     h = 0.1
 
     l0 = 0.05 # Body dimension

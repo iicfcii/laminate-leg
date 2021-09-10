@@ -16,17 +16,17 @@ PI = np.pi
 
 plt.close('all')
 
-l = [0.026111575674007712, 0.04926780184129832, 0.024620622484693974]
-k = [0.570392921926524, 0.16541561818465395]
+l = [0.022900859231861928, 0.04845024629303154, 0.02864889447510654]
+k = [0.4079729502402899, 0.23746970640577747]
 
 # l = [0.03,0.04,0.03]
 # k = [0.2,0.2]
 
 leg = Leg(l,k,optimize.lb)
 
-# leg.plot(leg.q1,leg.q2)
-# plt.title('Rest pose')
-# plt.show()
+leg.plot(leg.q1,leg.q2)
+plt.title('Rest pose')
+plt.show()
 # leg.plot(*leg.ik_lookup[0,1:])
 # plt.title('Retract pose')
 # plt.figure()
