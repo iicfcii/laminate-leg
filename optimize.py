@@ -11,11 +11,13 @@ tf = 4
 step = 2e-4
 
 l = 0.1
-l_min = 0.01
+l_min = 0.02
 l_max = l
 
-k_min = 0.01
+k_min = 0.1
 k_max = 1
+
+d_max = 30/180*np.pi
 
 lb = [0.04,0.08]
 
@@ -23,7 +25,7 @@ def toL(x):
     return [x[0],x[1],l-x[0]-x[1]]
 
 def toK(x):
-    return [x[2],x[3]]
+    return [x[-2],x[-1]]
 
 def obj(x):
     try:
@@ -34,9 +36,22 @@ def obj(x):
     model = Model(leg,dof='y')
     c = controller.MultiJump(model)
     sim_data = sim.run(model, controller=c, tfinal=tf, step=step, vis=False)
+
+    if max_deformation(sim_data) > d_max:
+        return 10
+
     h = average_height(sim_data)
 
     return -h
+
+def max_deformation(sim_data):
+    d = np.amax(np.abs(
+        np.concatenate([
+            np.array(sim_data['spring1_deformation']),
+            np.array(sim_data['spring2_deformation'])
+        ])
+    ))
+    return d
 
 def height(sim_data):
     h_max = 0

@@ -16,8 +16,13 @@ PI = np.pi
 
 plt.close('all')
 
-l = [0.022900859231861928, 0.04845024629303154, 0.02864889447510654]
-k = [0.4079729502402899, 0.23746970640577747]
+# 30 deg
+l = [0.02140538223186566, 0.048980513420074936, 0.029614104348059403]
+k = [0.49417716238092957, 0.2918080377404415]
+
+# 20 deg
+# l = [0.021120768651613143, 0.04840123992774345, 0.03047799142064342]
+# k = [0.5080892121371792, 0.4289675469821798]
 
 # l = [0.03,0.04,0.03]
 # k = [0.2,0.2]
@@ -50,6 +55,7 @@ sim_data = sim.run(model, controller=controller, tfinal=5, step=optimize.step, v
 # )
 # sim_data = data.read(file_name)
 print('Height',optimize.average_height(sim_data))
+print('Max deformation',optimize.max_deformation(sim_data))
 
 plt.figure()
 plt.subplot(211)
@@ -72,8 +78,8 @@ plt.title('Body y')
 # plt.title('Contact force')
 
 plt.figure()
-plt.plot(sim_data['time'], sim_data['spring1_x'], label='1')
-plt.plot(sim_data['time'], sim_data['spring2_x'], label='2')
+plt.plot(sim_data['time'], sim_data['spring1_deformation'], label='1')
+plt.plot(sim_data['time'], sim_data['spring2_deformation'], label='2')
 plt.title('Spring deformation')
 plt.legend()
 

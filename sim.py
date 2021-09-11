@@ -21,8 +21,8 @@ class Recorder:
             'body_y': [],
             'body_dy': [],
             'body_drz': [],
-            'spring1_x': [],
-            'spring2_x': [],
+            'spring1_deformation': [],
+            'spring2_deformation': [],
             'contact_f': []
         }
 
@@ -39,8 +39,8 @@ class Recorder:
 
         self.data['body_drz'].append(self.model.body.GetWvel_loc().z)
 
-        self.data['spring1_x'].append(self.model.spring_crank1_crank1p.GetRotSpringAngle())
-        self.data['spring2_x'].append(self.model.spring_link1_crank2p.GetRotSpringAngle())
+        self.data['spring1_deformation'].append(self.model.spring_crank1_crank1p.GetRotSpringAngle())
+        self.data['spring2_deformation'].append(self.model.spring_link1_crank2p.GetRotSpringAngle())
 
         body_pos = self.model.body.GetPos()
         body_pos = np.array([body_pos.x,body_pos.y,body_pos.z])
