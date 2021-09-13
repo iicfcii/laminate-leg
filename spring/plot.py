@@ -7,13 +7,13 @@ import numpy as np
 import data
 import experiment
 
-SAMPLES_PER_STEP = 7000*1.003
+SAMPLES_PER_STEP = 100*1.005
 COUNTS_PER_UNIT = 1000000
 
 plt.figure()
-for w in ['4','8','12']:
-# for w in ['8_5']:
-    force_data = data.read('data\spring_{}.csv'.format(w),float=False)
+# for w in ['4','8','12']:
+for w in ['32_10_5']:
+    force_data = data.read('data\spring_{}.csv'.format(w),float=False,skip=7)
     tz = np.float_(force_data[' Tz'])/COUNTS_PER_UNIT
     tz_init_i = data.detect_change(tz)
     tz_init_i -= SAMPLES_PER_STEP/2

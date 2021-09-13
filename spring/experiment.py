@@ -9,8 +9,8 @@ from dynamixel_sdk import *
 DEG_2_RAD = np.pi/180
 
 DEG_PER_COUNT = 0.088
-POSITION_START = 2560
-POSITION_RANGE = 300 # 0.088 deg/pulse
+POSITION_START = 2700
+POSITION_RANGE = 800 # 0.088 deg/pulse
 POSITION_STEP = 10
 assert POSITION_RANGE%POSITION_STEP == 0
 POSITIONS = np.concatenate((
@@ -52,7 +52,6 @@ if __name__ == '__main__':
     groupSR.txRxPacket()
     current_pos = groupSR.getData(SERVO_ID,ADDR_PRESENT_POSITION,LEN_PRESENT_POSITION)
 
-
     p_start = POSITION_START-POSITION_RANGE/2
     p_end = POSITION_START+POSITION_RANGE/2
     assert current_pos > p_start and current_pos < p_end, 'Position should be between {} and {} but is {}'.format(p_start,p_end,current_pos)
@@ -73,8 +72,12 @@ if __name__ == '__main__':
         groupSW = GroupSyncWrite(portH, packetH, ADDR_GOAL_POSITION, LEN_GOAL_POSITION)
         groupSW.addParam(SERVO_ID,int(p).to_bytes(LEN_GOAL_POSITION, 'little'))
         groupSW.txPacket()
-        print('Current position',p)
         time.sleep(1)
+        groupSR = GroupSyncRead(portH, packetH, ADDR_PRESENT_POSITION, LEN_PRESENT_POSITION)
+        groupSR.addParam(SERVO_ID)
+        groupSR.txRxPacket()
+        current_pos = groupSR.getData(SERVO_ID,ADDR_PRESENT_POSITION,LEN_PRESENT_POSITION)
+        print('Current position {}/{}'.format(current_pos,p))
 
     # Disable torque
     groupSW = GroupSyncWrite(portH, packetH, ADDR_TORQUE_ENABLE, LEN_TORQUE_ENABLE)

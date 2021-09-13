@@ -12,13 +12,14 @@ def write(filename, keys, values):
         for vs in itertools.zip_longest(*values):
             writer.writerow(vs)
 
-def read(filename, float=True):
+def read(filename, float=True, skip=1):
     keys = []
     values = []
     with open(filename, newline='') as csvfile:
         reader = csv.reader(csvfile)
         for i, row in enumerate(reader):
-            if i == 0:
+            if i < skip: continue
+            if i == skip:
                 for key in row:
                     if key != '':
                         keys.append(key)
@@ -39,11 +40,11 @@ def read(filename, float=True):
 
     return data
 
-def detect_change(d,window=100,threshold=2):
+def detect_change(d,window=10,threshold=0.0001):
     d_init = np.average(d[0:window])
     for i in range(0,len(d),window):
         d_init_c = np.average(d[i:i+window])
-        if np.abs(d_init_c-d_init)/np.abs(d_init) > threshold:
+        if np.abs(d_init_c-d_init) > threshold:
             break
         d_init = d_init_c
     return i
