@@ -37,9 +37,8 @@ k = [0.19973607960316817, 0.19968553379164242]
 
 leg = Leg(l,k,optimize.lb)
 
-leg.plot(leg.q1,leg.q2)
-plt.title('Rest pose')
-plt.show()
+# leg.plot(leg.q1,leg.q2)
+# plt.title('Rest pose')
 # leg.plot(*leg.ik_lookup[0,1:])
 # plt.title('Retract pose')
 # plt.figure()
@@ -47,10 +46,11 @@ plt.show()
 #     leg.plot(q1, q2, new=False)
 # plt.title('Length workspace')
 # plt.figure()
-# for l_ref in np.linspace(lb[0],lb[1],30):
+# for l_ref in np.linspace(optimize.lb[0],optimize.lb[1],30):
 #     q1, q2 = leg.est_ik(-PI/2, l_ref)
 #     leg.plot(q1, q2, new=False)
 # plt.title('Length IK')
+# plt.show()
 
 model = Model(leg,dof='y')
 controller = controller.MultiJump(model)

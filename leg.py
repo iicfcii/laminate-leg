@@ -107,19 +107,21 @@ class Leg:
         # Fourbar positions
         ps1A = Tw1@np.array([[psf1[1,0],psf1[1,1],0,1]]).T
         ps1B = Tw1@np.array([[psf1[2,0],psf1[2,1],0,1]]).T
-
+        
         ps2A = Tw1@T12@np.array([[psf2[1,0],psf2[1,1],0,1]]).T
         ps2B = Tw1@T12@np.array([[psf2[2,0],psf2[2,1],0,1]]).T
 
         ps = [
-            np.concatenate([pbA,pbB],axis=1)[0:3,:],
-            np.concatenate([p1,p2],axis=1)[0:3,:],
-            np.concatenate([ps1B,p3],axis=1)[0:3,:],
-            np.concatenate([ps2B,pt],axis=1)[0:3,:],
+            np.concatenate([pbA,pbB],axis=1)[0:3,:], # Body
+            np.concatenate([p1,p2],axis=1)[0:3,:], # link1
+            np.concatenate([(ps1B+p2)/2,p3],axis=1)[0:3,:], # link2
+            np.concatenate([(ps2B+p3)/2,pt],axis=1)[0:3,:], # link3
             np.concatenate([p1,ps1A],axis=1)[0:3,:], # Crank1
             np.concatenate([p2,ps2A],axis=1)[0:3,:], # Crank2
             np.concatenate([ps1A,ps1B],axis=1)[0:3,:], # Coupler1
             np.concatenate([ps2A,ps2B],axis=1)[0:3,:], # Coupler2
+            np.concatenate([ps1B,(ps1B+p2)/2],axis=1)[0:3,:], # Output1
+            np.concatenate([ps2B,(ps2B+p3)/2],axis=1)[0:3,:], # Output2
         ]
 
         return ps
@@ -129,18 +131,17 @@ class Leg:
 
         # Plot
         if new: plt.figure()
-        plt.plot(ps[5][0,:],ps[5][1,:],'-ok')
         plt.plot(ps[0][0,:],ps[0][1,:],'-ok')
-        plt.plot(ps[1][0,:],ps[1][1,:],'-or')
+        plt.plot(ps[1][0,:],ps[1][1,:],'-ok')
         plt.plot(ps[2][0,:],ps[2][1,:],'-ok')
         plt.plot(ps[3][0,:],ps[3][1,:],'-ok')
         plt.plot(ps[4][0,:],ps[4][1,:],'-or')
+        plt.plot(ps[5][0,:],ps[5][1,:],'-or')
+        plt.plot(ps[6][0,:],ps[6][1,:],'-ok')
+        plt.plot(ps[7][0,:],ps[7][1,:],'-ok')
 
-        ps_s1 = np.concatenate([ps[4][:,1].reshape((-1,1)),ps[2][:,0].reshape((-1,1))],axis=1)
-        plt.plot(ps_s1[0,:],ps_s1[1,:],'--og')
-
-        ps_s2 = np.concatenate([ps[5][:,1].reshape((-1,1)),ps[3][:,0].reshape((-1,1))],axis=1)
-        plt.plot(ps_s2[0,:],ps_s2[1,:],'--og')
+        plt.plot(ps[8][0,:],ps[8][1,:],'-og')
+        plt.plot(ps[9][0,:],ps[9][1,:],'-og')
 
         plt.axis('scaled')
         plt.axis([-0.075,0.075,0,0.15])
@@ -214,12 +215,14 @@ class Leg:
         ds = [
             [Leg.l0,Leg.t0,Leg.w0],
             [self.l1,Leg.t,Leg.w],
-            [self.l2+self.l6,Leg.t,Leg.w],
-            [self.l3+self.l9,Leg.t,Leg.w],
+            [self.l2+self.l6/2,Leg.t,Leg.w],
+            [self.l3+self.l9/2,Leg.t,Leg.w],
             [self.l4,Leg.t,Leg.w], # Crank1
             [self.l7,Leg.t,Leg.w], # Crank2
             [self.l5,Leg.t,Leg.w], # Coupler1
             [self.l8,Leg.t,Leg.w], # Coupler2
+            [self.l6/2,Leg.t,Leg.w], # Output1
+            [self.l9/2,Leg.t,Leg.w], # Output2
         ]
         return ds[n]
 
