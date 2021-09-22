@@ -15,9 +15,9 @@ l_min = 0.02
 l_max = l
 
 k_min = 0.1
-k_max = 0.2
+k_max = 1.0
 
-d_max = 30/180*np.pi
+d_max = 90/180*np.pi
 
 lb = [0.04,0.08]
 

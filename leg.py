@@ -107,7 +107,7 @@ class Leg:
         # Fourbar positions
         ps1A = Tw1@np.array([[psf1[1,0],psf1[1,1],0,1]]).T
         ps1B = Tw1@np.array([[psf1[2,0],psf1[2,1],0,1]]).T
-        
+
         ps2A = Tw1@T12@np.array([[psf2[1,0],psf2[1,1],0,1]]).T
         ps2B = Tw1@T12@np.array([[psf2[2,0],psf2[2,1],0,1]]).T
 
