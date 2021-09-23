@@ -1,4 +1,4 @@
-# Virtual spring charaterization
+# Virtual spring characterization
 
 Cole Brauer
 
@@ -8,3 +8,6 @@ Cole Brauer
 2. Update `tz.csv` with the desire torque data. Put multiple trials in separate columns.
 3. Run `characterize-spring.py`.  Figures and data files will be generated for each column in `tz.csv`.
 
+## Test geometry
+
+[test setup geometry](https://raw.githubusercontent.com/iicfcii/laminate-leg/rotational-spring/spring/characterization/test-geometry.png)
