@@ -10,4 +10,4 @@ Cole Brauer
 
 ## Test geometry
 
-[test setup geometry](https://raw.githubusercontent.com/iicfcii/laminate-leg/rotational-spring/spring/characterization/test-geometry.png)
+![test setup geometry](https://raw.githubusercontent.com/iicfcii/laminate-leg/rotational-spring/spring/characterization/test-geometry.png)
