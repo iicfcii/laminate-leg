@@ -45,7 +45,7 @@ class Model:
         ground.GetCollisionModel().SetFamily(0)
         self.system.Add(ground)
 
-        self.body = chrono.ChBodyEasyBox(*leg.link_dim(0),rho,True,True,contact_mat)
+        self.body = chrono.ChBodyEasyBox(*leg.link_dim(0),rho,False,True,contact_mat)
         self.body.SetPos(chrono.ChVectorD(*Leg.link_center(leg.link_pts(0))))
         # self.body.SetPos(chrono.ChVectorD(
         #     Leg.link_center(leg.link_pts(0))[0],

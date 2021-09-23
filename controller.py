@@ -15,8 +15,8 @@ class Jump():
 
         self.q1_i, self.q2_i = self.model.leg.est_ik(-PI/2,self.model.leg.lmax)
 
-        self.lr = 0.04
-        self.le = 0.08
+        self.lr = self.model.leg.lmin
+        self.le = self.model.leg.lmax
         self.lt = -PI/2
 
         self.state = 'falling'
@@ -60,8 +60,8 @@ class MultiJump():
 
         self.q1_i, self.q2_i = self.model.leg.est_ik(-PI/2,self.model.leg.lmax)
 
-        self.lr = 0.04
-        self.le = 0.08
+        self.lr = self.model.leg.lmin
+        self.le = self.model.leg.lmax
         self.lt = -PI/2
 
         self.f_contact_pre = 0
@@ -122,8 +122,8 @@ class BlindMultiJump():
 
         self.q1_i, self.q2_i = self.model.leg.est_ik(-PI/2,self.model.leg.lmax)
 
-        self.lr = 0.04
-        self.le = 0.08
+        self.lr = self.model.leg.lmin
+        self.le = self.model.leg.lmax
         self.lt = -PI/2
         self.p = period
 

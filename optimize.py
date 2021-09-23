@@ -19,7 +19,7 @@ k_max = 1.0
 
 d_max = 90/180*np.pi
 
-lb = [0.04,0.08]
+lb = [0.05,0.09]
 
 def toL(x):
     return [x[0],x[1],l-x[0]-x[1]]
