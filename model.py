@@ -26,22 +26,30 @@ class Model:
 
         self.leg = leg
 
+        # default holder for all chrono objects
+        # https://api.projectchrono.org/simulation_system.html#manual_ChSystem
         self.system = chrono.ChSystemNSC()
+        # set gravity
         self.system.Set_G_acc(chrono.ChVectorD(0,-9.81*1,0))
 
+        # set global contact parameters
+        # https://api.projectchrono.org/collision_shapes.html#collision_models
         chrono.ChCollisionModel.SetDefaultSuggestedEnvelope(0.001)
         chrono.ChCollisionModel.SetDefaultSuggestedMargin(0.001)
 
+        # https://api.projectchrono.org/collision_shapes.html#collision_materials
         contact_mat = chrono.ChMaterialSurfaceNSC()
         contact_mat.SetFriction(0.8)
         contact_mat.SetRestitution(0.3)
 
         # Bodies
-        tg = 0.02
+        # https://api.projectchrono.org/rigid_bodies.html#manual_ChBody
+        tg = 0.02 #thickness
         ground = chrono.ChBodyEasyBox(1.0,tg,0.1,rho,True,True,contact_mat)
         ground.SetPos(chrono.ChVectorD(0,-tg/2,0))
         ground.SetRot(chrono.Q_from_AngZ(0))
         ground.SetBodyFixed(True)
+        # 
         ground.GetCollisionModel().SetFamily(0)
         self.system.Add(ground)
 
@@ -53,8 +61,9 @@ class Model:
         #     Leg.link_center(leg.link_pts(0))[2]
         # ))
         self.body.SetRot(chrono.Q_from_AngZ(0))
+        # https://api.projectchrono.org/collision_shapes.html#collision_models
         self.body.GetCollisionModel().SetFamily(1)
-        self.body.GetCollisionModel().SetFamilyMaskNoCollisionWithFamily(1)
+        self.body.GetCollisionModel().SetFamilyMaskNoCollisionWithFamily(1) # up to 15 families
         self.system.Add(self.body)
 
         self.link1 = chrono.ChBodyEasyBox(*leg.link_dim(1),rho,True,True,contact_mat)
@@ -135,6 +144,8 @@ class Model:
             joint_ground_body = chrono.ChLinkMateGeneric(True, True, True, True, True, True)
         joint_ground_body.Initialize(ground, self.body, chrono.ChFrameD(self.body.GetPos()))
         self.system.Add(joint_ground_body)
+
+        # https://api.projectchrono.org/links.html
 
         joint_link1_link2 = chrono.ChLinkMateGeneric(True,True,True,True,True,False)
         joint_link1_link2.Initialize(self.link1,link2,chrono.ChFrameD(chrono.ChVectorD(*leg.link_pts(1)[:,1])))
@@ -227,6 +238,10 @@ class Model:
         self.system.AddLink(spring_link2_link3)
 
         # Double joint springs
+        # https://api.projectchrono.org/links.html
+        # https://api.projectchrono.org/classchrono_1_1_ch_link_spring.html
+        # https://api.projectchrono.org/classchrono_1_1_ch_link_t_s_d_a.html
+        # https://api.projectchrono.org/classchrono_1_1_ch_link_rot_spring_c_b.html
         self.spring_output1_link2 = chrono.ChLinkRotSpringCB()
         self.spring_output1_link2.Initialize(output1,link2,chrono.ChCoordsysD(chrono.ChVectorD(*leg.link_pts(8)[:,1])))
         self.spring_output1_link2_torque = RotSpringTorque(*leg.spring_kb(3))
@@ -240,6 +255,7 @@ class Model:
         self.system.AddLink(self.spring_output2_link3)
 
         # Motors
+        # https://api.projectchrono.org/motors.html
         self.motor_hip = chrono.ChLinkMotorRotationTorque()
         self.motor_hip.Initialize(self.link1,self.body,chrono.ChFrameD(chrono.ChVectorD(*leg.link_pts(1)[:,0])))
         self.system.Add(self.motor_hip)
