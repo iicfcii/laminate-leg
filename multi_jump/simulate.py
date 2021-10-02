@@ -45,8 +45,8 @@ leg = Leg(l,k,optimize.lb)
 # plt.show()
 
 model = Model(leg,dof='y')
-controller = controller.MultiJump(model)
-sim_data = sim.run(model, controller=controller, tfinal=5, step=3e-4, vis=True, capture=0)
+controller = controller.MultiJump(model, contact_delay=0.02)
+sim_data = sim.run(model, controller=controller, tfinal=optimize.tf, step=1e-4, vis=True, capture=0)
 # file_name = 'data/multi_jump_sim_343.csv'
 # data.write(
 #     file_name,
