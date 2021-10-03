@@ -34,7 +34,7 @@ def obj(x):
         return 10
 
     model = Model(leg,dof='y')
-    c = controller.MultiJump(model)
+    c = controller.DistMultiJump(model)
     sim_data = sim.run(model, controller=c, tfinal=tf, step=step, vis=False)
 
     if max_deformation(sim_data) > d_max:

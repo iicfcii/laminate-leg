@@ -55,8 +55,6 @@ class Recorder:
 
         contact_f = self.model.link4.GetContactForce()
         contact_f = np.linalg.norm([contact_f.x,contact_f.y,contact_f.z])
-        if len(self.data['contact_f']) > 0:
-            contact_f = Jump.a_contact*contact_f+(1-Jump.a_contact)*self.data['contact_f'][-1]
         self.data['contact_f'].append(contact_f)
 
 def run(model, controller=None, tfinal=5, step=5e-4, vis=True, capture=0):
