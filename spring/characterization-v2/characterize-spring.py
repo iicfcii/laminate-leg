@@ -2,39 +2,29 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-def FourBarCalc(bad: float, ad: float, ab: float, bc: float, cd: float):
+def TriCalc(angle_t0: float, link_0: float):
     """
-    Calculate the joint positions of a four-bar linkage
+    Calculate the joint positions of virtual linkage triangle
 
-    Uses only the cosine rule to avoid multiple solutions
-
-    :param bad: Angle between base and link 1 (rad)
-    :param ad: Link 0 length (base)
-    :param ab: Link 1 length
-    :param bc: Link 2 length
-    :param cd: Link 3 length
-    :return: point coords, angles
+    :param angle_t0: Angle between base and link 1 (rad)
+    :param link_0: Pusher arm length (m)
+    :return: list of vertex coords, list of thetas, r, phi
     """
-    bd = np.sqrt(ab**2+ad**2-2*ab*ad*np.cos(bad))
-    abd = np.arccos((ab**2+bd**2-ad**2)/(2*ab*bd))
-    adb = np.arccos((ad**2+bd**2-ab**2)/(2*ad*bd))
-    cbd = np.arccos((bc**2+bd**2-cd**2)/(2*bc*bd))
-    bcd = np.arccos((bc**2+cd**2-bd**2)/(2*bc*cd))
-    bdc = np.arccos((bd**2+cd**2-bc**2)/(2*bd*cd))
 
-    adc = adb + bdc
-    abc = abd + cbd
+    link_r = link_0 / (2 * np.cos(angle_t0))
+    angle_t1 = np.pi - (2 * angle_t0)
+    angle_phi = np.pi - angle_t1
 
     pts = np.array([
-        [0,0],
-        [ab*np.cos(bad),ab*np.sin(bad)],
-        [cd*np.cos(np.pi-adc)+ad,cd*np.sin(np.pi-adc)],
-        [ad,0]
+        [0, 0],
+        [link_0 * np.cos(angle_t0), link_0 * np.sin(angle_t0)],
+        [link_r, 0],
+        [0, 0]
     ])
 
-    ts = np.array([bad, abc, bcd, adc])
+    ts = np.array([angle_t0, angle_t1])
 
-    return pts, ts
+    return pts, ts, link_r, angle_phi
 
 DEG_2_RAD = np.pi/180
 
@@ -46,9 +36,7 @@ POSITION_LIMITS = [-25, 40]
 print('Expected counter value: ' + str((2*POSITION_RANGE)/POSITION_STEP))
 
 # Structure geometry
-link_ab = 0.020  # m
-link_bc = 0.010  # m
-init_bad = 30    # deg
+l = 0.030  # m
 
 # Open torque data
 df = pd.read_csv (r'tz.csv')
@@ -98,9 +86,8 @@ for c in range(data.shape[1]):
             elif position > POSITION_LIMITS[1]:
                 pos = POSITION_LIMITS[1]
 
-            # 4-bar position
-            theta0 = (init_bad + pos) * DEG_2_RAD
-            points, thetas = FourBarCalc(theta0, link_ab/2, link_ab, link_bc, link_ab/2)
+            # Triangle position and spring displacement
+            points, theta, r, phi = TriCalc((pos * DEG_2_RAD), l)
 
             # Plot every 10th position
             if counters[c]%10 == 0:
@@ -108,30 +95,16 @@ for c in range(data.shape[1]):
                 ys = points[:, 1]
                 axes[0, 0].plot(xs, ys)
 
-            # Spring displacement
-            phi = thetas[3] - np.pi
-
-            # Force angle
-            alpha = thetas[0] + thetas[1] - np.pi/2
-            beta = np.pi - thetas[0] - thetas[1]
-            gamma = thetas[3] - np.pi/2
-            delta = np.pi - thetas[3]
-
-            assert (alpha + beta + gamma + delta - np.pi) < 0.000001, 'Angles do not sum to 180'
-
             # Spring moment
-            r = link_ab/2
-            num = Tz/(r*np.sin(beta))
-            den = 1/(r*np.sin(beta)) + 1/(r*np.cos(beta)*np.sin(delta) + r*np.sin(beta)*np.sin(gamma))
-            M = num/den
+            M = (-Tz)/(1 + np.cos(phi))
 
             # Force
-            F = (Tz - M)/(r*np.sin(beta))
-            Fx = F * np.cos(beta)
-            Fy = F * np.sin(beta)
+            F = M/r
+            Fx = F * np.sin(-phi)
+            Fy = F * np.cos(-phi)
 
             # Store results at this position
-            results.append([pos, phi/DEG_2_RAD, phi, Tz, M, F, Fx, Fy])
+            results.append([pos, phi/DEG_2_RAD, phi, Tz, -M, F, Fx, Fy])
 
             # Update system state
             counters[c] = counters[c] + 1
