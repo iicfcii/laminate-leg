@@ -32,7 +32,7 @@ DEG_2_RAD = np.pi/180
 DEG_PER_COUNT = -0.088 # 0.088 deg/pulse, angle decrease with count increase
 POSITION_RANGE = 800   # +/- 400
 POSITION_STEP = 10     # 10 counts per step
-POSITION_LIMITS = [-25, 40]
+POSITION_LIMITS = [-40, 40]
 print('Expected counter value: ' + str((2*POSITION_RANGE)/POSITION_STEP))
 
 # Structure geometry
@@ -56,6 +56,7 @@ for c in range(data.shape[1]):
     fig, axes = plt.subplots(2, 2)
     fig.suptitle(df.columns.values[c], fontsize=16)
     axes[0, 0].set_title('Linkage Trajectory')
+    axes[0, 0].axis('equal')
 
     for r in range(data.shape[0]-3):
         data_point = data[r, c] - zero_value
@@ -104,21 +105,21 @@ for c in range(data.shape[1]):
             Fy = F * np.cos(-phi)
 
             # Store results at this position
-            results.append([pos, phi/DEG_2_RAD, phi, Tz, -M, F, Fx, Fy])
+            results.append([pos, phi/DEG_2_RAD, phi, Tz, -M, F, Fx, Fy, 2*r])
 
             # Update system state
             counters[c] = counters[c] + 1
-            position = position + slope_dir*POSITION_STEP*DEG_PER_COUNT
+            position = position - slope_dir*POSITION_STEP*DEG_PER_COUNT
             triggered = True
 
     results = np.array(results)
 
     axes[0, 1].set_title('Spring Profile')
     axes[0, 1].plot(results[:, 2], results[:, 4])
-    axes[0, 1].set_xlim([-1.4, 1.0])
-    axes[0, 1].set_ylim([-0.06, 0.06])
-    axes[0, 1].set_xticks(np.linspace(-1.4, 1.0, 13))
-    axes[0, 1].set_yticks(np.linspace(-0.06, 0.06, 7))
+    # axes[0, 1].set_xlim([-1.4, 1.0])
+    # axes[0, 1].set_ylim([-0.06, 0.06])
+    # axes[0, 1].set_xticks(np.linspace(-1.4, 1.0, 13))
+    # axes[0, 1].set_yticks(np.linspace(-0.06, 0.06, 7))
     axes[0, 1].tick_params(axis='x', labelrotation=90)
     axes[0, 1].set_xlabel('Position (rad)')
     axes[0, 1].set_ylabel('Moment (Nm)')
@@ -141,7 +142,7 @@ for c in range(data.shape[1]):
     plt.savefig('fig_' + df.columns.values[c] + '.png')
     plt.show()
 
-    results_df = pd.DataFrame(results, columns=['Servo Displacement (deg)', 'Spring Displacement (deg)', 'Spring Displacement (rad)', 'Tz (Nm)', 'Spring Moment (Nm)', 'Force (N)', 'Fx (N)', 'Fy (N)'])
+    results_df = pd.DataFrame(results, columns=['Servo Displacement (deg)', 'Spring Displacement (deg)', 'Spring Displacement (rad)', 'Tz (Nm)', 'Spring Moment (Nm)', 'Force (N)', 'Fx (N)', 'Fy (N)', 'Min Laminate Length (m, 2*r)'])
     results_df.to_csv('results_' + df.columns.values[c] + '.csv')
 
 print(df.columns.values)
