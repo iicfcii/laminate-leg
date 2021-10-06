@@ -1,6 +1,9 @@
+import os
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+
+plot_raw_data = False
 
 def TriCalc(angle_t0: float, link_0: float):
     """
@@ -45,7 +48,6 @@ print('Input table size: ' + str(data.shape))
 
 slope_detection_step = 10
 last_slope_dir = 0
-triggered = False
 counters = np.zeros(data.shape[1])
 
 for c in range(data.shape[1]):
@@ -62,10 +64,13 @@ for c in range(data.shape[1]):
     axes[0, 0].axis('equal')
 
     # Raw data plot
-    # axes[0, 0].set_title('Raw Data')
-    # axes[0, 0].plot(range(data.shape[0]), data[:, c])
-    # axes[0, 0].set_xlim([12000, 14000])
-    # axes[0, 0].set_ylim([0.15, 0.2])
+    if plot_raw_data:
+        fig1, axes1 = plt.subplots(1, 1, figsize=(16, 9))
+        axes1.set_title('Raw Data')
+        axes1.grid()
+        axes1.plot(range(data.shape[0]), data[:, c])
+        # axes1.set_xlim([4000, 6000])
+        # axes1.set_ylim([-0.35, -0.15])
 
     for r in range(data.shape[0]-slope_detection_step):
         data_point = data[r, c] - zero_value
@@ -74,55 +79,58 @@ for c in range(data.shape[1]):
             print('Col ' + str(c) + ' stopping at row ' + str(r))
             break
 
-        slope = data_point_next - data_point
+        slope = (data_point_next - data_point)/slope_detection_step
 
-        if abs(slope) < (0.00005 * slope_detection_step):
+        if abs(slope) < 0.00025:
             slope_dir = 0
+            marker_format = 'o-y'
         elif slope > 0:
             slope_dir = 1
+            marker_format = '^-g'
         else:
             slope_dir = -1
+            marker_format = 'v-r'
 
         if slope_dir != last_slope_dir:
             last_slope_dir = slope_dir
-            triggered = False
-            # axes[0, 0].plot(r, data_point+zero_value, 'o:r') # Slope change plot
+            if plot_raw_data:
+                axes1.plot([r, r+slope_detection_step], [data_point+zero_value, data_point_next+zero_value], marker_format, markersize=3) # Slope change points
 
-        if (abs(slope) > (0.0003 * slope_detection_step)) and not triggered:
-            # Support moment
-            Tz = data_point
+            # If about to change,
+            if slope_dir != 0:
+                # Support moment
+                Tz = -data_point
 
-            # Limited position
-            pos = position
-            if position < POSITION_LIMITS[0]:
-                pos = POSITION_LIMITS[0]
-            elif position > POSITION_LIMITS[1]:
-                pos = POSITION_LIMITS[1]
+                # Limited position
+                pos = position
+                if position < POSITION_LIMITS[0]:
+                    pos = POSITION_LIMITS[0]
+                elif position > POSITION_LIMITS[1]:
+                    pos = POSITION_LIMITS[1]
 
-            # Triangle position and spring displacement
-            points, theta, r, phi = TriCalc((pos * DEG_2_RAD), l)
+                # Triangle position and spring displacement
+                points, theta, r, phi = TriCalc((pos * DEG_2_RAD), l)
 
-            # Plot every 10th position
-            if counters[c]%10 == 0:
-                xs = points[:, 0]
-                ys = points[:, 1]
-                axes[0, 0].plot(xs, ys) # Linkage plot
+                # Plot every 10th position
+                if counters[c]%10 == 0:
+                    xs = points[:, 0]
+                    ys = points[:, 1]
+                    axes[0, 0].plot(xs, ys) # Linkage plot
 
-            # Spring moment
-            M = (-Tz)/(1 + np.cos(phi))
+                # Spring moment
+                M = (-Tz)/(1 + np.cos(phi))
 
-            # Force
-            F = M/r
-            Fx = F * np.sin(-phi)
-            Fy = F * np.cos(-phi)
+                # Force
+                F = M/r
+                Fx = F * np.sin(-phi)
+                Fy = F * np.cos(-phi)
 
-            # Store results at this position
-            results.append([pos, phi/DEG_2_RAD, phi, Tz, -M, F, Fx, Fy, 2*r])
+                # Store results at this position
+                results.append([pos, phi/DEG_2_RAD, phi, Tz, -M, F, Fx, Fy, 2*r])
 
-            # Update system state
-            counters[c] = counters[c] + 1
-            position = position - slope_dir*POSITION_STEP*DEG_PER_COUNT
-            triggered = True
+                # Update system state
+                counters[c] = counters[c] + 1
+                position = position - slope_dir*POSITION_STEP*DEG_PER_COUNT
 
     results = np.array(results)
 
@@ -137,7 +145,6 @@ for c in range(data.shape[1]):
     axes[0, 1].set_ylabel('Moment (Nm)')
     axes[0, 1].grid(True)
 
-
     axes[1, 0].set_title('Positions')
     axes[1, 0].plot(results[:, 0], label='Servo')
     axes[1, 0].plot(results[:, 1], label='Spring')
@@ -151,7 +158,14 @@ for c in range(data.shape[1]):
     axes[1, 1].grid(True)
 
     fig.tight_layout()
-    plt.savefig('fig_' + df.columns.values[c] + '.png')
+    fig.savefig('fig_' + df.columns.values[c] + '.png')
+
+    if plot_raw_data:
+        fig1.tight_layout()
+        fig1.savefig('fig_' + df.columns.values[c] + '_raw.png')
+    else:
+        os.remove('fig_' + df.columns.values[c] + '_raw.png')
+
     plt.show()
 
     results_df = pd.DataFrame(results, columns=['Servo Displacement (deg)', 'Spring Displacement (deg)', 'Spring Displacement (rad)', 'Tz (Nm)', 'Spring Moment (Nm)', 'Force (N)', 'Fx (N)', 'Fy (N)', 'Min Laminate Length (m, 2*r)'])
