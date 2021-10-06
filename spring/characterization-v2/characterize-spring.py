@@ -43,6 +43,7 @@ df = pd.read_csv (r'tz.csv')
 data = df.to_numpy()
 print('Input table size: ' + str(data.shape))
 
+slope_detection_step = 10
 last_slope_dir = 0
 triggered = False
 counters = np.zeros(data.shape[1])
@@ -55,19 +56,29 @@ for c in range(data.shape[1]):
     # Initialize plot
     fig, axes = plt.subplots(2, 2)
     fig.suptitle(df.columns.values[c], fontsize=16)
+
+    # Linkage plot
     axes[0, 0].set_title('Linkage Trajectory')
     axes[0, 0].axis('equal')
 
-    for r in range(data.shape[0]-3):
+    # Raw data plot
+    # axes[0, 0].set_title('Raw Data')
+    # axes[0, 0].plot(range(data.shape[0]), data[:, c])
+    # axes[0, 0].set_xlim([12000, 14000])
+    # axes[0, 0].set_ylim([0.15, 0.2])
+
+    for r in range(data.shape[0]-slope_detection_step):
         data_point = data[r, c] - zero_value
-        data_point_next = data[r+3, c] - zero_value
+        data_point_next = data[r+slope_detection_step, c] - zero_value
         if np.isnan(data_point_next):
             print('Col ' + str(c) + ' stopping at row ' + str(r))
             break
 
         slope = data_point_next - data_point
 
-        if slope > 0:
+        if abs(slope) < (0.00005 * slope_detection_step):
+            slope_dir = 0
+        elif slope > 0:
             slope_dir = 1
         else:
             slope_dir = -1
@@ -75,8 +86,9 @@ for c in range(data.shape[1]):
         if slope_dir != last_slope_dir:
             last_slope_dir = slope_dir
             triggered = False
+            # axes[0, 0].plot(r, data_point+zero_value, 'o:r') # Slope change plot
 
-        if (abs(slope) > 0.00025) and not triggered:
+        if (abs(slope) > (0.0003 * slope_detection_step)) and not triggered:
             # Support moment
             Tz = data_point
 
@@ -94,7 +106,7 @@ for c in range(data.shape[1]):
             if counters[c]%10 == 0:
                 xs = points[:, 0]
                 ys = points[:, 1]
-                axes[0, 0].plot(xs, ys)
+                axes[0, 0].plot(xs, ys) # Linkage plot
 
             # Spring moment
             M = (-Tz)/(1 + np.cos(phi))
